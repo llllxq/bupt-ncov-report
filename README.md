@@ -41,7 +41,7 @@
    1. 按照下方”脚本运行（本机）“一节的说明，设置环境变量。
    2. 将所有文件上传；
 
-**注：**您可以通过 AWS CloudWatch 来自动执行该脚本。
+**注：** 您可以通过 AWS CloudWatch 来自动执行该脚本。
 
 
 
@@ -53,7 +53,7 @@ GCP 支持通过 `requirements.txt` 自动下载依赖项，因此将所有文�
 2. 按照下方”脚本运行（本机）“一节的说明，设置环境变量。
 3. 打包上传本仓库所有文件。
 
-**注：**建议您将该云函数的触发器设为 Cloud Pub/Sub 触发器，然后可以通过 GCP Cloud Scheduler 来自动执行该函数。
+**注：** 建议您将该云函数的触发器设为 Cloud Pub/Sub 触发器，然后可以通过 GCP Cloud Scheduler 来自动执行该函数。
 
 
 
@@ -67,12 +67,18 @@ GCP 支持通过 `requirements.txt` 自动下载依赖项，因此将所有文�
 
 | 环境变量      | 说明                                                         |
 | :------------ | :----------------------------------------------------------- |
-| BUPT_SSO_USER | 您登录北邮门户（https://my.bupt.edu.cn/）时使用的用户名，通常是您的学工号 |
-| BUPT_SSO_PASS | 您登录北邮门户（https://my.bupt.edu.cn/）时使用的密码        |
+| BUPT_SSO_USER | 您登录[北邮门户（https://my.bupt.edu.cn/）](https://my.bupt.edu.cn/)时使用的用户名，通常是您的学工号 |
+| BUPT_SSO_PASS | 您登录[北邮门户（https://my.bupt.edu.cn/）](https://my.bupt.edu.cn/)时使用的密码 |
 | TG_BOT_TOKEN  | （可选）如果您需要把执行结果通过 Telegram 机器人告知，请将此变量设为您的 Telegram 机器人的 API Token |
 | TG_CHAT_ID    | （可选）如果您需要把执行结果通过 Telegram 机器人告知，请将此变量设为您自己的用户 id |
 
 #### 运行
 
 通过 python 命令运行 main.py 即可，无任何参数。
+
+
+
+## 版权
+
+使用 MIT 协议发布，著作权由代码的贡献者所有。
 
