@@ -1,9 +1,10 @@
 ﻿import argparse
 import html
 import json
-import os, sys
-import re
 import logging
+import os
+import re
+import sys
 import traceback
 from typing import Dict, Optional
 
@@ -47,6 +48,9 @@ SCRIPT_DOC = {
 LOGIN_API = 'https://app.bupt.edu.cn/uc/wap/login/check'
 REPORT_PAGE = 'https://app.bupt.edu.cn/ncov/wap/default/index'
 REPORT_API = 'https://app.bupt.edu.cn/ncov/wap/default/save'
+
+# 不能再短了，再短肯定是出 bug 了
+REASONABLE_LENGTH = 24
 
 # 用于存储程序运行所需要的配置。详情请参考文档。
 config: Dict[str, Optional[str]] = {}
@@ -168,7 +172,7 @@ def match_re_group1(re_str: str, text: str) -> str:
     """
     match = re.search(re_str, text)
     if match is None:
-        raise ValueError(f'在文本中匹配 {re_str} 失败，没找到任何东西。')
+        raise ValueError(f'在文本中匹配 {re_str} 失败，没找到任何东西。\n请阅读脚本文档中的“使用前提”部分。')
 
     return match.group(1)
 
@@ -180,9 +184,14 @@ def extract_post_data(html: str) -> Dict[str, str]:
     """
     new_data = match_re_group1(r'var def = (\{.+\});', html)
     old_data = match_re_group1(r'oldInfo: (\{.+\}),', html)
-    old_data, new_data = json.loads(old_data), json.loads(new_data)
+
+    # 检查数据是否足够长
+    if len(old_data) < REASONABLE_LENGTH or len(new_data) < REASONABLE_LENGTH:
+        logger.debug(f'\nold_data: {old_data}\nnew_data: {new_data}')
+        raise ValueError('获取到的数据过短。请阅读脚本文档的“使用前提”部分')
 
     # 用原页面的“def”变量的值，覆盖掉“oldInfo”变量的值
+    old_data, new_data = json.loads(old_data), json.loads(new_data)
     old_data.update(new_data)
     return old_data
 
