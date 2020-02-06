@@ -20,26 +20,49 @@ REPORT_PAGE = 'https://app.bupt.edu.cn/ncov/wap/default/index'
 REPORT_API = 'https://app.bupt.edu.cn/ncov/wap/default/save'
 
 
-def check_env() -> None:
+def check_user_info() -> None:
     """
     检查环境变量是否已经设置，并将其存入 envs 变量中。
+    或已经在 envs 中设置。
     :return: None
     """
-
-    # 检查用户名、密码是否已设置
+    
+    # check whether username & pwd is set in script or in PATH
+    if envs['BUPT_SSO_USER'] is not None and envs['BUPT_SSO_PASS'] is not None:
+        return
     for key in ('BUPT_SSO_USER', 'BUPT_SSO_PASS'):
         if key not in os.environ:
             raise ValueError(f'未设置环境变量 `{key}`，无法登录页面。')
 
         envs[key] = os.environ[key]
-
-    # 检查 Tg 的两个参数是否都已设置
+        
+def check_tg_info() -> None:
+    """
+    检查TG的环境变量是否已经设置，并将其存入 envs 变量中。
+    或已经在 envs 中设置。
+    :return: None
+    """
+    
+    # check whether tg info is set
+    if envs['TG_BOT_TOKEN'] != '' and envs['TG_CHAT_ID'] != '':
+        return
+    # check whether 
     if ('TG_BOT_TOKEN' in os.environ) != ('TG_CHAT_ID' in os.environ):
         raise ValueError('TG_BOT_TOKEN 和 TG_CHAT_ID 必须同时设置。')
 
     if 'TG_BOT_TOKEN' in os.environ:
         envs['TG_BOT_TOKEN'] = os.environ['TG_BOT_TOKEN']
         envs['TG_CHAT_ID'] = os.environ['TG_CHAT_ID']
+    
+
+def check_env() -> None:
+    """
+    检查环境变量是否已经设置，并将其存入 envs 变量中。
+    :return: None
+    """
+
+    check_user_info()
+    check_tg_info()
 
 
 def match_re_group1(re_str: str, text: str) -> str:
