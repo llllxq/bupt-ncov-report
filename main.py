@@ -51,6 +51,7 @@ REPORT_API = 'https://app.bupt.edu.cn/ncov/wap/default/save'
 
 # 不能再短了，再短肯定是出 bug 了
 REASONABLE_LENGTH = 24
+TIMEOUT_SECOND = 10
 
 # 用于存储程序运行所需要的配置。详情请参考文档。
 config: Dict[str, Optional[str]] = {}
@@ -58,7 +59,7 @@ logger = logging.getLogger('bupt_ncov_report')
 
 # 初始化 session
 session = requests.Session()
-session.timeout = 10
+session.timeout = TIMEOUT_SECOND
 
 
 def initialize_config() -> None:
@@ -247,15 +248,12 @@ def main(*wtf, **kwwtf) -> None:
     # 读取程序配置，并检查配置是否出错
     initialize_config()
     fill_config_with_env()
-    args = fill_config_with_argparse()
+    fill_config_with_argparse()
     config_type_consistency()
     check_config()
 
     # 初始化日志
-    if 'LOG_PATH' in args:
-        initialize_logger(args['LOG_PATH'])
-    else:
-        initialize_logger(None)
+    initialize_logger(config['BNR_LOG_PATH'])
 
     # 运行工作函数
     logger.info('运行工作函数')
@@ -278,11 +276,23 @@ def main(*wtf, **kwwtf) -> None:
     # 如果用户指定了 Telegram 相关信息，就把消息通过 Telegram 发送给用户
     logger.info('将运行结果通过 Telegram 机器人发送')
     if config['TG_BOT_TOKEN'] is not None:
-        session.post(f'https://api.telegram.org/bot{config["TG_BOT_TOKEN"]}/sendMessage', json={
-            'chat_id': config['TG_CHAT_ID'],
-            'text': msg,
-            'parse_mode': 'HTML',
-        })
+        try:
+            tg_res = requests.post(f'https://api.telegram.org/bot{config["TG_BOT_TOKEN"]}/sendMessage', json={
+                'chat_id': config['TG_CHAT_ID'],
+                'text': msg,
+                'parse_mode': 'HTML',
+            }, timeout=TIMEOUT_SECOND)
+
+            tg_res = tg_res.json()
+            if 'ok' not in tg_res:
+                raise ValueError('Telegram API 的返回值很奇怪。')
+            if not tg_res['ok']:
+                raise ValueError(f'Telegram API 调用失败，可能您的 Token 或 chat id 配置有误。'
+                                 f'API 的返回是：\n{tg_res}')
+
+        except Exception:
+            # 将 Telegram 机器人的错误也打印下来
+            logger.error('调用 Telegram API 时发生错误', exc_info=True)
 
 
 if __name__ == '__main__':
