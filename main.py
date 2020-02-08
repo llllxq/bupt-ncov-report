@@ -6,7 +6,7 @@ import os
 import re
 import sys
 import traceback
-from typing import Dict, Optional
+from typing import Dict, Optional, List, Any
 
 import requests
 
@@ -54,43 +54,70 @@ REASONABLE_LENGTH = 24
 TIMEOUT_SECOND = 10
 
 # 用于存储程序运行所需要的配置。详情请参考文档。
-config: Dict[str, Optional[str]] = {}
+g_config: Dict[str, Optional[str]] = {}
 logger = logging.getLogger('bupt_ncov_report')
 
 # 初始化 session
 session = requests.Session()
-session.timeout = TIMEOUT_SECOND
 
 
-def initialize_config() -> None:
+def get_config() -> Dict[str, Optional[str]]:
+    return g_config
+
+
+def set_session(new_session) -> None:
     """
-    通过 CONFIG_SCHEMA 来初始化 config 变量。
+    修改 session 变量，以方便测试。
+    :param new_session: 新的 Session 对象
     :return: None
     """
-    for key in CONFIG_SCHEMA.keys():
-        config[key] = CONFIG_SCHEMA[key]['default']
+
+    global session
+    session = new_session
 
 
-def fill_config_with_env() -> None:
+def initialize_session(session: requests.Session) -> None:
+    """
+    初始化 requests 的 Session 对象。
+    :param session: requests.Session
+    :return: None
+    """
+    session.timeout = TIMEOUT_SECOND
+
+
+def initialize_config(config: dict, schema: dict) -> None:
+    """
+    通过 schema 来初始化 config 变量。
+    :param config: config 变量
+    :return: None
+    """
+    for key in schema.keys():
+        config[key] = schema[key]['default']
+
+
+def fill_config_with_env(config: Dict[str, Optional[str]], environ: Any) -> None:
     """
     从环境变量中获取配置的值，填写到 config 变量中。
+    :param config: config 变量
     :return: None
     """
-    for name in CONFIG_SCHEMA.keys():
-        if name in os.environ and os.environ[name] != '':
-            config[name] = os.environ[name]
+    for name in [*config.keys()]:
+        if name in environ and environ[name] != '':
+            config[name] = environ[name]
 
 
-def fill_config_with_argparse() -> Dict[str, str]:
+def fill_config_with_argparse(config: Dict[str, Optional[str]], config_schema: dict, argv: List[str]):
     """
     从命令行参数中获取配置，填入 config 中。
+    （本函数可能会导致整个程序退出）
+    :param config: config 变量
     :return: 参数列表
     """
     # 使用 argparse 来解析命令行参数
     parser = argparse.ArgumentParser(
         description=SCRIPT_DOC['description'],
     )
-    for name, schema in CONFIG_SCHEMA.items():
+    for name, schema in config_schema.items():
         # 将形如 FOO_BAR 的名字转换为 --foo-bar，添加为命令行参数
         parser.add_argument(
             '--' + name.lower().replace('_', '-'),
@@ -102,30 +129,28 @@ def fill_config_with_argparse() -> Dict[str, str]:
         )
 
     # 解析命令行参数，将被指定的项填写到 config 变量中
-    args = vars(parser.parse_args())
+    args = vars(parser.parse_args(argv))
 
     # 删掉非字符串类型和空字符串
     args = {k: v for k, v in args.items() if isinstance(v, str) and len(v) > 0}
 
-    for name in CONFIG_SCHEMA.keys():
+    for name in config_schema.keys():
         if name in args:
             config[name] = args[name]
 
-    return args
 
-
-def config_type_consistency() -> None:
+def config_type_consistency(config: Dict[str, Optional[str]]) -> None:
     """
     将 config 变量中为空字符串、或不为字符串的值设为 None；
     提高类型一致性，方便之后使用 config 变量。
     :return: None
     """
-    for name in CONFIG_SCHEMA.keys():
+    for name in [*config.keys()]:
         if not isinstance(config[name], str) or config[name] == '':
             config[name] = None
 
 
-def check_config() -> None:
+def check_config(config: Dict[str, Optional[str]]) -> None:
     """
     检查程序配置是否正确；如不正确则抛出异常。
     :return: None
@@ -141,10 +166,11 @@ def check_config() -> None:
         raise ValueError('TG_BOT_TOKEN 和 TG_CHAT_ID 必须同时设置，否则程序无法正确运行。')
 
 
-def initialize_logger(log_file: Optional[str]) -> None:
+def initialize_logger(logger: logging.Logger, log_file: Optional[str]) -> None:
     """
     初始化传入的 Logger 对象，
     将 INFO 以上的日志输出到屏幕，将所有日志存入文件。
+    :param logger: Logger 对象
     :param log_file: 日志文件路径
     :return: None
     """
@@ -197,7 +223,7 @@ def extract_post_data(html: str) -> Dict[str, str]:
     return old_data
 
 
-def do_ncov_report() -> str:
+def do_ncov_report(config: Dict[str, Optional[str]]) -> str:
     """
     进行信息上报的工作函数，包含本脚本主要逻辑。
     :return: 上报 API 的返回内容。
@@ -205,8 +231,8 @@ def do_ncov_report() -> str:
     # 登录北邮 nCoV 上报网站
     logger.info('登录北邮 nCoV 上报网站')
     login_res = session.post(LOGIN_API, data={
-        'username': config['BUPT_SSO_USER'],
-        'password': config['BUPT_SSO_PASS'],
+        'username': g_config['BUPT_SSO_USER'],
+        'password': g_config['BUPT_SSO_PASS'],
     })
     if login_res.status_code != 200:
         logger.debug(f'登录页：\n'
@@ -246,20 +272,21 @@ def main(*wtf, **kwwtf) -> None:
     """
 
     # 读取程序配置，并检查配置是否出错
-    initialize_config()
-    fill_config_with_env()
-    fill_config_with_argparse()
-    config_type_consistency()
-    check_config()
+    initialize_session(session)
+    initialize_config(g_config, CONFIG_SCHEMA)
+    fill_config_with_env(g_config, os.environ)
+    fill_config_with_argparse(g_config, CONFIG_SCHEMA, sys.argv[1:])
+    config_type_consistency(g_config)
+    check_config(g_config)
 
     # 初始化日志
-    initialize_logger(config['BNR_LOG_PATH'])
+    initialize_logger(logger, g_config['BNR_LOG_PATH'])
 
     # 运行工作函数
     logger.info('运行工作函数')
     success = True
     try:
-        res = do_ncov_report()
+        res = do_ncov_report(g_config)
     except:
         success = False
         res = traceback.format_exc()
@@ -275,10 +302,10 @@ def main(*wtf, **kwwtf) -> None:
 
     # 如果用户指定了 Telegram 相关信息，就把消息通过 Telegram 发送给用户
     logger.info('将运行结果通过 Telegram 机器人发送')
-    if config['TG_BOT_TOKEN'] is not None:
+    if g_config['TG_BOT_TOKEN'] is not None:
         try:
-            tg_res = requests.post(f'https://api.telegram.org/bot{config["TG_BOT_TOKEN"]}/sendMessage', json={
-                'chat_id': config['TG_CHAT_ID'],
+            tg_res = session.post(f'https://api.telegram.org/bot{g_config["TG_BOT_TOKEN"]}/sendMessage', json={
+                'chat_id': g_config['TG_CHAT_ID'],
                 'text': msg,
                 'parse_mode': 'HTML',
             }, timeout=TIMEOUT_SECOND)
@@ -290,7 +317,7 @@ def main(*wtf, **kwwtf) -> None:
                 raise ValueError(f'Telegram API 调用失败，可能您的 Token 或 chat id 配置有误。'
                                  f'API 的返回是：\n{tg_res}')
 
-        except Exception:
+        except:
             # 将 Telegram 机器人的错误也打印下来
             logger.error('调用 Telegram API 时发生错误', exc_info=True)
 
