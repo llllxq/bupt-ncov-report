@@ -1,11 +1,10 @@
 import json
 import os
 import tempfile
-from pathlib import Path
 import unittest
 from collections import namedtuple
-
 from typing import List
+
 import main
 
 RequestHistory = namedtuple('RequestHistory', [
