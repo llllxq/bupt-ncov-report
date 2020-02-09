@@ -24,7 +24,7 @@
 
 ## 脚本依赖
 
-- Python 3.7 或以上
+- Python 3.6 或以上
 - requests 库
 
 
@@ -45,9 +45,7 @@
 
 1. 通过 `git clone` 或 GitHub 的「下载 zip 文件」功能，将本仓库下载到您的电脑上。
 
-2. 安装 Python 3.7 或以上版本。请注意，在较新的版本上，本脚本可能无法正常运行。
-   
-   1. 例如，如果您是 Ubuntu 18.04 LTS 用户，可以在设置 proposed 软件源之后，使用命令`sudo apt install python3.7`来安装。
+2. 安装 Python 3.6 或以上版本。
    
 3. `cd` 到脚本目录，通过 pip 安装依赖项：`pip install -r requirements.txt`。
 
@@ -68,7 +66,7 @@
 
 由于 AWS Lambda 不会自动下载依赖项，因此需要您手动下载依赖项并打包上传。
 
-1. 配置 Python 3.7 虚拟环境，在虚拟环境中安装 requests。
+1. 在 Linux 下配置 Python 3.6 虚拟环境，在虚拟环境中安装 requests。
 2. 将虚拟环境下的 `site-packages` 文件夹中的内容，拷贝到与该脚本同一目录下。
 3. 在 AWS Lambda 中新建一个函数：
    1. 按照下方「脚本配置与运行」一节的说明，配置环境变量。
