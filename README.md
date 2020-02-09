@@ -1,5 +1,7 @@
 # BUPT 疫情防控通 自动上报脚本
 
+[![Coverage Status](https://coveralls.io/repos/github/ipid/bupt-ncov-report/badge.svg?branch=master)](https://coveralls.io/github/ipid/bupt-ncov-report?branch=master)
+
 该脚本可以帮助您操作北邮「疫情防控通」，自动完成每日上报。
 
 
@@ -12,6 +14,7 @@
 ![Telegram 提醒](https://i.loli.net/2020/02/06/a8vimqWH7lVInX6.png)
 
 - 可输出**日志文件**，得知运行失败原因
+- 单元测试覆盖 80% 的代码
 
 
 
