@@ -35,7 +35,7 @@ class Program:
         self._sess = session
 
         self._check_config(config)
-        self._initialize_logger(logger, config.get('BNR_LOG_PATH'))
+        self._initialize_logger(logger, config.get('BNR_LOG_PATH'))  # type: ignore
         self._conf: Mapping[str, Optional[ConfigValue]] = config
         self._exit_status: int = 0
 
