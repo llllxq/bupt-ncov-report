@@ -69,7 +69,6 @@ ENV/
 .idea/
 *.iws
 
-
 # sftp configuration file
 sftp-config.json
 
@@ -83,6 +82,11 @@ GitHub.sublime-settings
 # Visual Studio Code #
 .vscode/
 .history
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
 
 # CUSTOM: zip files and batch scripts
 *.zip

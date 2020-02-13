@@ -1,6 +1,6 @@
 # BUPT 疫情防控通 自动上报脚本
 
-[![单元&功能测试     ](https://github.com/ipid/bupt-ncov-report/workflows/%E5%8D%95%E5%85%83&%E5%8A%9F%E8%83%BD%E6%B5%8B%E8%AF%95%20%20%20%20%20/badge.svg)](https://github.com/ipid/bupt-ncov-report/actions) [![Coverage 状态](https://coveralls.io/repos/github/ipid/bupt-ncov-report/badge.svg?branch=master)](https://coveralls.io/github/ipid/bupt-ncov-report?branch=master)
+[![mypy](https://github.com/ipid/bupt-ncov-report/workflows/mypy/badge.svg)](https://github.com/ipid/bupt-ncov-report/actions) [![单元&功能测试](https://github.com/ipid/bupt-ncov-report/workflows/%E5%8D%95%E5%85%83&%E5%8A%9F%E8%83%BD%E6%B5%8B%E8%AF%95%20%20%20%20%20/badge.svg)](https://github.com/ipid/bupt-ncov-report/actions) [![Coverage 状态](https://coveralls.io/repos/github/ipid/bupt-ncov-report/badge.svg?branch=master)](https://coveralls.io/github/ipid/bupt-ncov-report?branch=master)
 
 该脚本可以帮助您操作北邮「疫情防控通」，自动完成每日上报。
 
@@ -8,13 +8,14 @@
 
 ## 特性
 
+- 当检测到您自动上报的数据，表明您为**疑似病患**时，只要您开启了一个选项（见下方），就能**阻止上报**，防止您引起学校注意。
 - 既可以部署在服务器上，也可以部署在 GCP Cloud Function、AWS Lambda 或阿里云、腾讯云云函数等支持 Python 的云函数平台上。
 - 上报完成后，可通过 **Telegram 机器人**来接收上报结果，方便您得知自动上报是否成功
 
 ![Telegram 提醒](https://i.loli.net/2020/02/06/a8vimqWH7lVInX6.png)
 
 - 可输出**日志文件**，得知运行失败原因
-- 单元测试覆盖 80% 的代码
+- 单元测试覆盖至少 85% 的代码
 
 
 
@@ -40,7 +41,7 @@
 
 #### 注意事项
 
-- 如果您要自动运行本脚本，建议您于**每天上午 7:00** 运行；在 0 点运行可能会失败。
+- 如果您要自动运行本脚本，建议您于**每天上午 7 点的某分钟** 运行；在 0 点运行可能会失败。
 
 
 
@@ -74,6 +75,7 @@
 3. 在 AWS Lambda 中新建一个函数：
    1. 按照下方「脚本配置与运行」一节的说明，配置环境变量。
    2. 将所有文件上传。
+      1. 除 `site-packages` 文件夹的内容以外，其它非 `.py` 文件都可以忽略。
    3. 将要执行的文件设为 main.py，要执行的函数设为 main。
 
 **注：** 您可以通过 AWS CloudWatch 来自动执行该脚本。
@@ -87,6 +89,7 @@ GCP 支持通过 `requirements.txt` 自动下载依赖项，因此将所有文�
 1. 在 Cloud Function 中创建新函数。
    1. 按照下方「脚本配置与运行」一节的说明，配置环境变量。
    2. 打包上传本仓库所有文件。
+      1. 除 `requirements.txt` 以外，其它非 `.py` 文件都可以忽略。
    3. 将要执行的函数设为 main。
 
 **注：** 建议您将该云函数的触发器设为 Cloud Pub/Sub 触发器，然后可以通过 GCP Cloud Scheduler 来自动执行该函数。
@@ -101,13 +104,14 @@ GCP 支持通过 `requirements.txt` 自动下载依赖项，因此将所有文�
 
 需要设置的参数如下：
 
-| 环境变量      | 命令行参数      | 说明                                                         |
-| :------------ | --------------- | :----------------------------------------------------------- |
-| BUPT_SSO_USER | --bupt-sso-user | 您登录[北邮门户（https://my.bupt.edu.cn/）](https://my.bupt.edu.cn/)时使用的用户名，通常是您的学工号 |
-| BUPT_SSO_PASS | --bupt-sso-pass | 您登录[北邮门户（https://my.bupt.edu.cn/）](https://my.bupt.edu.cn/)时使用的密码 |
-| TG_BOT_TOKEN  | --tg-bot-token  | （可选）如果您需要把执行结果通过 Telegram 机器人告知，请将此变量设为您的 Telegram 机器人的 API Token |
-| TG_CHAT_ID    | --tg-chat-id    | （可选）如果您需要把执行结果通过 Telegram 机器人告知，请将此变量设为您自己的用户 id |
-| BNR_LOG_PATH  | --bnr-log-path  | （可选）日志文件存放的路径，未设置则不输出日志文件。（注意日志中可能有敏感信息） |
+| 环境变量       | 命令行参数       | 说明                                                         |
+| :------------- | ---------------- | :----------------------------------------------------------- |
+| BUPT_SSO_USER  | --bupt-sso-user  | 您登录[北邮门户（https://my.bupt.edu.cn/）](https://my.bupt.edu.cn/)时使用的用户名，通常是您的学工号 |
+| BUPT_SSO_PASS  | --bupt-sso-pass  | 您登录[北邮门户（https://my.bupt.edu.cn/）](https://my.bupt.edu.cn/)时使用的密码 |
+| TG_BOT_TOKEN   | --tg-bot-token   | （可选）如果您需要把执行结果通过 Telegram 机器人告知，请将此变量设为您的 Telegram 机器人的 API Token |
+| TG_CHAT_ID     | --tg-chat-id     | （可选）如果您需要把执行结果通过 Telegram 机器人告知，请将此变量设为您自己的用户 id |
+| BNR_LOG_PATH   | --bnr-log-path   | （可选）日志文件存放的路径，未设置则不输出日志文件。（注意日志中可能有敏感信息） |
+| STOP_WHEN_SICK | --stop-when-sick | （可选）当检测到您上报的数据表明您为疑似病患时（如体温>=37°C、接触过确诊人群等），若您开启了此选项，将停止自动上报，以防止您连续多日上报异常数据。 |
 
 **注：** 优先级为：命令行参数 > 环境变量 > 代码中的默认值。其中前者覆盖后者。
 
@@ -146,6 +150,13 @@ python3 main.py
 ```bash
 export BUPT_SSO_USER=2020114514
 python3 main.py --bupt-sso-pass=114514
+```
+
+如果您需要使用**疑似病患数据停止上报**（STOP_WHEN_SICK）功能，那么在命令行参数使用时不需要加参数：
+
+```bash
+export BUPT_SSO_USER=2020114514
+python3 main.py --bupt-sso-pass=114514 --stop-when-sick
 ```
 
 如果您觉得设置环境变量太麻烦，也可以全部使用命令行参数。
