@@ -1,6 +1,6 @@
 # 加空格，让徽章上的文字能显示完
 name: '单元&功能测试     '
-on: [push, check_run]
+on: [push, check_run, fork]
 
 
 jobs:

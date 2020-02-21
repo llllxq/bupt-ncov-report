@@ -15,6 +15,7 @@
 ![Telegram 提醒](https://i.loli.net/2020/02/06/a8vimqWH7lVInX6.png)
 
 - 可输出**日志文件**，得知运行失败原因
+- 进行简单修改后，便可用于**其它学校的「疫情防控通」系统**上
 - 单元测试覆盖至少 85% 的代码
 
 
@@ -136,6 +137,8 @@ export BUPT_SSO_PASS=114514
 python3 main.py
 ```
 
+如果您需要使用**疑似病患数据停止上报**（STOP_WHEN_SICK）功能，则只需要将该环境变量设为任意非空字符串（如：1、true）即可。
+
 **注：** 
 
 - 在 Windows 上，您使用的命令可能是 `python` 而不是 `python3`。您可以使用系统自带的「编辑环境变量」工具，也可以在使用 `cmd` 和 PowerShell 时设置环境变量。其中，`cmd` 和 PowerShell 的环境变量的语法各不相同，请自行研究。
@@ -181,6 +184,41 @@ python3 main.py --bupt-sso-pass=114514 --stop-when-sick
 export HTTP_PROXY=http://127.0.0.1:1080
 export HTTPS_PROXY=http://127.0.0.1:1080
 ```
+
+
+
+## 修改 URL 以用于外校的「疫情防控通」系统
+
+「疫情防控通」系统是某公司开发的软件产品；除北邮之外，其它学校也在使用该系统。不同单位使用的该系统，其接口均一致。因此，您只需修改代码中的 URL 就能将其用于别校的系统上。
+
+需要修改的位置包括：
+
+- `/bupt_ncov_report/constant/__init__.py` 中的三个 URL；
+- `/bupt_ncov_report/_test/test_feature.py` 中的测试用 URL；
+
+
+
+## 测试与类型检查
+
+当您修改代码后，您可以运行单元测试或类型检查来检测代码正确性。
+
+
+
+#### 运行测试
+
+在根目录运行命令 `python3 -m unittest` 即可。（Windows 下您可能需要 `python` 命令）
+
+
+
+#### 运行类型检查
+
+首先，您需要安装依赖包：
+
+- 前往仓库内的 .github 目录；
+- 根据 requirements-ci.txt 安装依赖：`pip install -r requirements-ci.txt`
+- 运行命令：`mypy main.py`
+
+**注：** 本项目的 GitHub Actions 运行 mypy 时指定了更严格的规则。可以阅读 .github 目录下的相关文件来了解详情。
 
 
 

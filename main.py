@@ -18,13 +18,12 @@ CONFIG_SCHEMA: Dict[str, ConfigSchemaItem] = {
         default=None,
         type=str,
     ),
-    'BUPT_SSO_PASS':
-        ConfigSchemaItem(
-            description='您登录北邮门户（https://my.bupt.edu.cn/）时使用的密码',
-            for_short='北邮密码',
-            default=None,
-            type=str,
-        ),
+    'BUPT_SSO_PASS': ConfigSchemaItem(
+        description='您登录北邮门户（https://my.bupt.edu.cn/）时使用的密码',
+        for_short='北邮密码',
+        default=None,
+        type=str,
+    ),
     'TG_BOT_TOKEN': ConfigSchemaItem(
         description='（可选）如果您需要把执行结果通过 Telegram 机器人告知，'
                     '请设为您的 Telegram 机器人的 API Token',
@@ -65,7 +64,7 @@ def fill_config(config: Dict[str, Optional[ConfigValue]]) -> None:
 
     fillers: List[BaseFiller] = [
         EnvFiller(),
-        CmdArgsFiller(),
+        CmdArgsFiller(description=PROGRAM_DESC),
     ]
 
     for filler in fillers:
@@ -82,9 +81,7 @@ def main(*wtf: Any, **kwwtf: Any) -> Any:
     fill_config(config)
 
     # 搭积木；手动建立各个类的实例，并注入依赖
-    pure_utils = PureUtils()
-    program_utils = ProgramUtils(pure_utils)
-    program = Program(program_utils, requests.Session(), config)
+    program = Program(ProgramUtils(PureUtils()), requests.Session(), config)
 
     # 运行程序
     program.main()

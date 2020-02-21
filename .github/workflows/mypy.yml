@@ -1,5 +1,5 @@
 name: mypy
-on: [push, check_run]
+on: [push, check_run, fork]
 
 
 jobs:
