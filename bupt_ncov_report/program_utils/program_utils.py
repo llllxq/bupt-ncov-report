@@ -91,7 +91,7 @@ class ProgramUtils:
         检测当前数据中表示生病的项，生成「生病项报告」。
         如：体温 38.5°C，「其他信息」不为空，接触过疑似确诊人群等。
 
-        本函数假设 data 为经过检测的，未破损的数据。
+        本函数假设 data 为经过检测的，未破损的数据。使用本函数前请用 is_data_broken 检查数据。
         :param data: 最终上报的数据
         :return: str 数组，其中每一条为一个异常项。无异常则为空 list
         """
@@ -132,6 +132,8 @@ class ProgramUtils:
     def check_data_sick(self, data: Dict[str, Any]) -> None:
         """
         如果提交的数据表明用户生病，则抛出异常。
+        在使用本函数前，需要使用 is_data_broken 检查数据是否破损。
+
         :param data: 最终提交数据
         :return: None
         """

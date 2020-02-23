@@ -118,6 +118,10 @@ class Program:
 
         # 检查上报参数有没有异常
         if self._conf['STOP_WHEN_SICK']:
+            if self._prog_util.is_data_broken(post_data):
+                raise RuntimeError('要上报的数据似乎是破损的，可能网页已经改版。'
+                                   '此时无法使用 STOP_WHEN_SICK 功能；上报失败，请手动上报。')
+
             self._prog_util.check_data_sick(post_data)
 
         # 最终 POST
