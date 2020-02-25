@@ -24,7 +24,7 @@ jobs:
           --disallow-incomplete-defs --disallow-subclassing-any
           --disallow-untyped-calls --disallow-untyped-decorators
           --disallow-untyped-defs --namespace-packages
-          --no-implicit-optional
+          --no-implicit-optional --warn-return-any
           --show-column-numbers --show-error-codes
           --warn-redundant-casts --warn-unreachable
           --warn-unused-configs --warn-unused-ignores

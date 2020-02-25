@@ -16,13 +16,15 @@ class PureUtils:
         :param range: 前闭后开区间
         :return: True/False 表示是/否在区间内
         """
-        if not isinstance(data, int):
+        if isinstance(data, int):
+            int_data = data
+        else:
             try:
-                data = int(data)
+                int_data = int(data)
             except:
                 return False
 
-        return range[0] <= data < range[1]
+        return range[0] <= int_data < range[1]
 
     def match_re_group1(self, re_str: str, text: str) -> str:
         """

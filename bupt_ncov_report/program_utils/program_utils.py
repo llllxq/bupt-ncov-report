@@ -22,7 +22,7 @@ class ProgramUtils:
     ):
         self.pure_util = pure_utils
 
-    def extract_post_data(self, html: str) -> Dict[str, str]:
+    def extract_post_data(self, html: str) -> Dict[str, Any]:
         """
         从上报页面的 HTML 中，提取出上报 API 所需要填写的参数。
         :return: 最终 POST 的参数（使用 dict 表示）
@@ -35,6 +35,7 @@ class ProgramUtils:
             raise ValueError('获取到的数据过短。请阅读脚本文档的「使用前提」部分。')
 
         # 用原页面的「def」变量的值，覆盖掉「oldInfo」变量的值
+        old_dict: Dict[str, Any]
         old_dict, new_dict = json.loads(old_data), json.loads(new_data)
         old_dict.update(new_dict)
         return old_dict

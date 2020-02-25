@@ -7,7 +7,7 @@ import json
 import logging
 import sys
 import traceback
-from typing import Mapping, Optional
+from typing import Mapping, Optional, cast
 
 import requests
 
@@ -35,7 +35,13 @@ class Program:
         self._sess = session
 
         self._check_config(config)
-        self._initialize_logger(logger, config.get('BNR_LOG_PATH'))  # type: ignore
+
+        # 初始化整个 bupt_ncov_report 模块的根 logger
+        self._initialize_logger(
+            logging.getLogger('bupt_ncov_report'),
+            cast(Optional[str], config.get('BNR_LOG_PATH')),
+        )
+
         self._conf: Mapping[str, Optional[ConfigValue]] = config
         self._exit_status: int = 0
 

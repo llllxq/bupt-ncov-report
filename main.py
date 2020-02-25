@@ -71,7 +71,7 @@ def fill_config(config: Dict[str, Optional[ConfigValue]]) -> None:
         filler.fill(config, CONFIG_SCHEMA)
 
 
-def main(*wtf: Any, **kwwtf: Any) -> Any:
+def main(*wtf: object, **kwwtf: object) -> object:
     """
     入口函数。该函数用于在允许直接运行的同时，兼容 GCP Cloud Function/AWS Lambda 等云函数平台。
     :return: 由检测到的平台决定
