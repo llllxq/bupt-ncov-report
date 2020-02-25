@@ -196,6 +196,8 @@ export HTTPS_PROXY=http://127.0.0.1:1080
 - `/bupt_ncov_report/constant/__init__.py` 中的三个 URL；
 - `/bupt_ncov_report/_test/test_feature.py` 中的测试用 URL；
 
+**注：** 由于外校的「疫情防控通」问卷内容与本校不同，因此**疑似病患数据停止上报**（STOP_WHEN_SICK）功能可能无法使用，要使用需要进一步修改源码。
+
 
 
 ## 测试与类型检查
