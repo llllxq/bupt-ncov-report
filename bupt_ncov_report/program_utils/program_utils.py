@@ -4,9 +4,10 @@ __all__ = (
 
 import json
 import logging
-from typing import Any, Dict, List
+from typing import Any, Dict, List, cast
 
 from ..constant import *
+from ..predef import *
 from ..pure_utils import *
 
 logger = logging.getLogger(__name__)
@@ -72,6 +73,19 @@ class ProgramUtils:
 
         return False
 
+    def verify_data(self, data: Dict[str, Any]) -> VerifiedData:
+        """
+        验证 data 是否是破损的；如果 data 未破损，则原样返回。此处使用类型系统保证正确性。
+        :param data: 最终上报数据
+        :return: data 本身
+        """
+        if self.is_data_broken(data):
+            raise RuntimeError('要上报的数据似乎是破损的，可能网页已经改版。'
+                               '此时无法使用 STOP_WHEN_SICK 功能；上报失败，请手动上报。')
+
+        # 仅用于类型检查器的类型转换
+        return cast(VerifiedData, data)
+
     def property_to_pinyin(self, prop: str) -> str:
         """
         将属性转换为其对应的汉语拼音缩写（仅支持有限字符，且不检查字符是否在范围内）
@@ -86,13 +100,12 @@ class ProgramUtils:
         )}
         return ''.join(mapper[x] for x in prop)
 
-    def data_sick_report(self, data: Dict[str, Any]) -> List[str]:
+    def data_sick_report(self, data: VerifiedData) -> List[str]:
         """
         检测当前数据中表示生病的项，生成「生病项报告」。
         如：体温 38.5°C，「其他信息」不为空，接触过疑似确诊人群等。
 
-        本函数假设 data 为经过检测的，未破损的数据。使用本函数前请用 is_data_broken 检查数据。
-        :param data: 最终上报的数据
+        :param data: 最终上报的数据，必须经过检查确定其未破损
         :return: str 数组，其中每一条为一个异常项。无异常则为空 list
         """
 
@@ -129,12 +142,11 @@ class ProgramUtils:
 
         return abnormal_items
 
-    def check_data_sick(self, data: Dict[str, Any]) -> None:
+    def check_data_sick(self, data: VerifiedData) -> None:
         """
         如果提交的数据表明用户生病，则抛出异常。
-        在使用本函数前，需要使用 is_data_broken 检查数据是否破损。
 
-        :param data: 最终提交数据
+        :param data: 最终提交数据，必须经过检查确定其未破损
         :return: None
         """
         # 获取生病列表

@@ -126,6 +126,11 @@ class Test_ProgramUtils_StopWhenSick(unittest.TestCase):
         """普通情况"""
         self.assertFalse(self.u.is_data_broken(POST_DATA_NORMAL))
 
+    def test_verifyData_returnAsIs(self):
+        """测试 verify_data 函数在 data 正确时，是否照原样返回传入的 data"""
+        # 测试传入的和传出的是「同一个对象」，因此使用 is 而不用 equal
+        self.assertIs(self.u.verify_data(POST_DATA_NORMAL), POST_DATA_NORMAL)
+
     def test_isDataBroken_1Lack(self):
         """缺一个属性"""
         data = POST_DATA_NORMAL.copy()
@@ -133,8 +138,12 @@ class Test_ProgramUtils_StopWhenSick(unittest.TestCase):
         for key in POST_DATA_SICK_ITEMS.keys():
             del data[key]
             self.assertTrue(self.u.is_data_broken(data))
+            with self.assertRaises(Exception) as _asRa:
+                self.u.verify_data(data)
+
             data[key] = POST_DATA_NORMAL[key]
             self.assertFalse(self.u.is_data_broken(data))
+            self.u.verify_data(data)
 
     def test_isDataBroken_2Lack(self):
         """缺两个属性"""
@@ -149,8 +158,12 @@ class Test_ProgramUtils_StopWhenSick(unittest.TestCase):
             # 从第二个属性开始删掉之后要补充
             del data[key]
             self.assertTrue(self.u.is_data_broken(data))
+            with self.assertRaises(Exception) as _asRa:
+                self.u.verify_data(data)
             data[key] = POST_DATA_NORMAL[key]
             self.assertTrue(self.u.is_data_broken(data))
+            with self.assertRaises(Exception) as _asRa:
+                self.u.verify_data(data)
 
     def test_dataSickReport_checkDataSick_normal(self):
         self.assertEqual(
