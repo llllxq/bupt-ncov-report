@@ -19,8 +19,7 @@ jobs:
       - name: 运行 mypy
         run: >
           mypy main.py
-          --check-untyped-defs --disallow-any-decorated
-          --disallow-any-generics --disallow-any-unimported
+          --check-untyped-defs --disallow-any-unimported
           --disallow-incomplete-defs --disallow-subclassing-any
           --disallow-untyped-calls --disallow-untyped-decorators
           --disallow-untyped-defs --namespace-packages
