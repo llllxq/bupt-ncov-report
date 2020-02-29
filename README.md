@@ -193,7 +193,9 @@ export HTTPS_PROXY=http://127.0.0.1:1080
 
 需要修改的位置包括：
 
-- `/bupt_ncov_report/constant/__init__.py` 中的三个 URL；
+- `/bupt_ncov_report/constant/constant.py` 中的三个 URL；
+- `/bupt_ncov_report/constant/headers.py` 中的三个 HTTP 头；
+  - 您可以先使用 Fiddler 等工具抓包，再根据实际情况修改该部分。
 - `/bupt_ncov_report/_test/test_feature.py` 中的测试用 URL；
 
 **注：** 由于外校的「疫情防控通」问卷内容与本校不同，因此**疑似病患数据停止上报**（STOP_WHEN_SICK）功能可能无法使用，要使用需要进一步修改源码。

@@ -3,10 +3,8 @@ __all__ = (
     'VerifiedData',
 )
 
-from typing import Any, Dict, NewType, TypeVar, Union
+from typing import Any, Dict, NewType, Union
 
 ConfigValue = Union[str, bool, int]
-
-TConfigValue = TypeVar('TConfigValue', bound=ConfigValue)
 
 VerifiedData = NewType('VerifiedData', Dict[str, Any])

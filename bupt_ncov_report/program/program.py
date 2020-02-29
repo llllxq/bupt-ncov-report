@@ -25,11 +25,28 @@ class Program:
     本类提供状态码。状态码应用于外部代码退出此程序。
     """
 
+    # 能在多个请求中复用的 HTTP header
+    COMMON_HEADERS = {
+        'User-Agent': HEADERS.UA,
+        'Accept-Language': HEADERS.ACCEPT_LANG,
+    }
+
+    # 能在多个 POST 请求中复用的 HTTP header。不含 COMMON_HEADERS，请手动将这两个常量混合
+    COMMON_POST_HEADERS = {
+        'Accept': HEADERS.ACCEPT_JSON,
+        'Origin': HEADERS.ORIGIN_BUPTAPP,
+        'X-Requested-With': HEADERS.REQUEST_WITH_XHR,
+        'Content-Type': HEADERS.CONTENT_TYPE_UTF8,
+    }
+
     def __init__(
             self,
+            # 程序的配置
+            config: Mapping[str, Optional[ConfigValue]],
+
+            # 以下为 Program 类所依赖的类（我好想要依赖注入啊）
             program_utils: ProgramUtils,
             session: requests.Session,
-            config: Mapping[str, Optional[ConfigValue]],
     ):
         self._prog_util = program_utils
         self._sess = session
@@ -96,8 +113,12 @@ class Program:
         # 登录北邮 nCoV 上报网站
         logger.info('登录北邮 nCoV 上报网站')
         login_res = self._sess.post(LOGIN_API, data={
-            'username': self._conf['BUPT_SSO_USER'],
-            'password': self._conf['BUPT_SSO_PASS'],
+            'username': cast(str, self._conf['BUPT_SSO_USER']),
+            'password': cast(str, self._conf['BUPT_SSO_PASS']),
+        }, headers={
+            **self.COMMON_HEADERS,
+            **self.COMMON_POST_HEADERS,
+            'Referer': HEADERS.REFERER_LOGIN_API,
         })
         if login_res.status_code != 200:
             logger.debug(f'登录页：\n'
@@ -106,14 +127,17 @@ class Program:
             raise RuntimeError('登录 API 返回的 HTTP 状态码不是 200。')
 
         # 获取上报页面的数据
-        report_page_res = self._sess.get(REPORT_PAGE)
+        report_page_res = self._sess.get(REPORT_PAGE, headers={
+            **self.COMMON_HEADERS,
+            'Accept': HEADERS.ACCEPT_HTML,
+        })
         logger.debug(f'报告页：\n'
                      f'status code: {report_page_res.status_code}\n'
                      f'url: {report_page_res.url}')
         if report_page_res.status_code != 200:
             raise RuntimeError('上报页面的 HTTP 状态码不是 200。')
         if report_page_res.url != REPORT_PAGE:
-            raise RuntimeError('访问上报页面时被重定向。您的北邮账号和密码可能有误。')
+            raise RuntimeError('访问上报页面时被重定向。一般来说原因是登录操作失败了；您的北邮账号和密码可能有误。')
         page_html = report_page_res.text
         if '每日上报' not in page_html:
             raise RuntimeError('上报页面的 HTML 中没有找到「每日上报」，可能已经改版。')
@@ -128,9 +152,17 @@ class Program:
             self._prog_util.check_data_sick(verified_data)
 
         # 最终 POST
-        report_api_res = self._sess.post(REPORT_API, post_data)
+        report_api_res = self._sess.post(
+            REPORT_API,
+            data=post_data,
+            headers={
+                **self.COMMON_HEADERS,
+                **self.COMMON_POST_HEADERS,
+                'Referer': HEADERS.REFERER_POST_API,
+            },
+        )
         if report_api_res.status_code != 200:
-            raise RuntimeError('上报 API 返回的 HTTP 状态码不是 200。')
+            raise RuntimeError(f'上报 API 返回的 HTTP 状态码（{report_api_res.status_code}）不是 200。')
 
         return report_api_res.text
 

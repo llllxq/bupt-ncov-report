@@ -2,7 +2,7 @@
     'main',
 )
 
-from typing import Any, Dict, List, Optional
+from typing import Dict, List, Optional
 
 import requests
 
@@ -47,7 +47,7 @@ CONFIG_SCHEMA: Dict[str, ConfigSchemaItem] = {
     'STOP_WHEN_SICK': ConfigSchemaItem(
         description='（可选）当检测到您上报的数据表明您为疑似病患时（如体温>=37°C、接触过确诊人群等），'
                     '若您开启了此选项，将停止自动上报，以防止您连续多日上报异常数据。',
-        for_short='生病时停止',
+        for_short='',
         default=False,
         type=bool,
     ),
@@ -81,7 +81,8 @@ def main(*wtf: object, **kwwtf: object) -> object:
     fill_config(config)
 
     # 搭积木；手动建立各个类的实例，并注入依赖
-    program = Program(ProgramUtils(PureUtils()), requests.Session(), config)
+    pure_util = PureUtils()
+    program = Program(config, ProgramUtils(pure_util), requests.Session())
 
     # 运行程序
     program.main()

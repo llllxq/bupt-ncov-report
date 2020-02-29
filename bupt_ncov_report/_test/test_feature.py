@@ -432,7 +432,8 @@ def setup_testCase(self: unittest.TestCase, stop_when_sick: bool, login_success:
     register_respond_to_mock(self.sess, login_success=login_success, is_sick=is_sick)
 
     # 此处类型错误忽略
-    self.prog = Program(ProgramUtils(PureUtils()), self.sess, self.config)
+    pure_util = PureUtils()
+    self.prog = Program(self.config, ProgramUtils(pure_util), self.sess)
     self.prog.main()
 
 
