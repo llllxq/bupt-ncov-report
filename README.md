@@ -48,6 +48,8 @@
 
 #### 部署在云服务器上
 
+> ⚠ 注意：Anaconda 用户可能会发现自己无法正常运行脚本。因此，若您遇到了问题，请您尝试以下链接中的方法：https://stackoverflow.com/questions/54135206/requests-caused-by-sslerrorcant-connect-to-https-url-because-the-ssl-module 。原始 Python 用户无此问题。
+
 1. 通过 `git clone` 或 GitHub 的「下载 zip 文件」功能，将本仓库下载到您的电脑上。
 
 2. 安装 Python 3.6 或以上版本。
