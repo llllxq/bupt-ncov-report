@@ -174,6 +174,17 @@ python3 main.py --bupt-sso-pass=114514 --stop-when-sick
 
 若您部署脚本的目标平台既不提供环境变量功能，也不允许设置命令行参数，那么您可以通过修改代码的方式提供配置。找到 CONFIG_SCHEMA 变量，给对应配置的 default 属性填入您的值即可。
 
+## 配置server酱推送结果到微信
+
+server酱可以非常简单的配置结果推送，字需要微信绑定即可，使用方法请见[server酱官网](http://sc.ftqq.com/)
+
+在server酱官网登录并绑定微信后能获得一个SCKEY，将SCKEY作为参数传入即可：
+
+```bash
+export BUPT_SSO_USER=2020114514
+python3 main.py --bupt-sso-pass=114514 --server-chan-sckey=xxxxxxxx
+```
+
 
 
 ## 配置代理以连接 Telegram 服务器
