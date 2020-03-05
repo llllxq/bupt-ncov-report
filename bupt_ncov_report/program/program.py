@@ -8,6 +8,7 @@ import logging
 import sys
 import traceback
 from typing import Mapping, Optional, cast
+import time
 
 import requests
 
@@ -216,6 +217,32 @@ class Program:
             except:
                 # 将 Telegram 机器人的错误也打印下来
                 logger.error('调用 Telegram API 时发生错误。', exc_info=True)
+                success = False
+
+        # 如果用户指定了 server酱（server chan） 相关信息，就把消息通过 server酱 推送到用户微信
+        if self._conf['SERVER_CHAN_SCKEY'] is not None:
+            logger.info('将运行结果通过 server酱 推送到用户微信')
+            try:
+                sc_res_raw = self._sess.post(
+                    f'https://sc.ftqq.com/{self._conf["SERVER_CHAN_SCKEY"]}.send',
+                    data={
+                        'text': '每日上报已完成',
+                        'desp': time.asctime()+'\n'+msg  # SERVER酱不允许重复发送相同内容，故加上时间
+                    },
+                    timeout=TIMEOUT_SECOND
+                )
+
+                tg_res = sc_res_raw.json()
+                # if 'dataset' not in tg_res:
+                #     raise ValueError('Telegram API 的返回值很奇怪。')
+                if tg_res['errno'] != 0:
+                    raise ValueError(f'SERVER酱 调用失败，可能您的 SCKEY 配置有误。'
+                                     f'API 的返回是：\n{tg_res}'
+                                     f'您输入的SCKEY为\n{self._conf["SERVER_CHAN_SCKEY"]}')
+
+            except:
+                # 将 Telegram 机器人的错误也打印下来
+                logger.error('调用 SERVER酱 API 时发生错误。', exc_info=True)
                 success = False
 
         if not success:

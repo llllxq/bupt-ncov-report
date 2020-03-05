@@ -51,6 +51,13 @@ CONFIG_SCHEMA: Dict[str, ConfigSchemaItem] = {
         default=False,
         type=bool,
     ),
+    'SERVER_CHAN_SCKEY': ConfigSchemaItem(
+        description='（可选）如果您需要把执行结果通过SERVER酱(http://sc.ftqq.com/3.version)推送的微信，'
+                    '请设为SERVER酱为您提供的专属用户SCKEY',
+        for_short='用户SCKEY',
+        default=False,
+        type=str,
+    ),
 }
 PROGRAM_DESC = '自动填写北邮「疫情防控通」的每日上报信息。'
 
