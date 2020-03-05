@@ -241,7 +241,7 @@ class Program:
                                      f'您输入的SCKEY为\n{self._conf["SERVER_CHAN_SCKEY"]}')
 
             except:
-                # 将 Telegram 机器人的错误也打印下来
+                # 将 SERVER酱 机器人的错误也打印下来
                 logger.error('调用 SERVER酱 API 时发生错误。', exc_info=True)
                 success = False
 
