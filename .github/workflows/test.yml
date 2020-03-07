@@ -24,9 +24,11 @@ jobs:
         run: |
           coverage run -m unittest discover
       - name: 上传 Coveralls
+        env:
+          COVERALLS_REPO_TOKEN: ${{ secrets.CoverallsRepoToken }}
         run: |
           if [ ${{ matrix.python-version }} = 3.7 ]; then
-            COVERALLS_REPO_TOKEN=${{ secrets.CoverallsRepoToken }} coveralls
+            coveralls
           fi
 
   test-windows:
@@ -46,5 +48,8 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r .github/requirements-ci.txt
       - name: 运行测试
+        shell: bash
+        env:
+          PYTHONIOENCODING: UTF-8
         run: |
           python -m unittest discover
