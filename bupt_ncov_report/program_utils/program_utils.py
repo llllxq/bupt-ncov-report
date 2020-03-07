@@ -4,7 +4,7 @@ __all__ = (
 
 import json
 import logging
-from typing import Any, Dict, List, cast
+from typing import Any, Dict, List, Tuple, cast
 
 from ..constant import *
 from ..predef import *
@@ -25,8 +25,36 @@ class ProgramUtils:
     def extract_post_data(self, html: str) -> Dict[str, Any]:
         """
         从上报页面的 HTML 中，提取出上报 API 所需要填写的参数。
-        :return: 最终 POST 的参数（使用 dict 表示）
+        该函数获取页面上 def 与 oldInfo 变量的值，将其正确混合后返回。
+
+        :param html: 上报页 HTML
+        :return: dict 类型，可用于最终上报时提交的参数
         """
+        old_dict, new_dict = self.extract_old_new_data(html)
+
+        # 需要从 new dict 中提取如下数据
+        PICK_PROPS = (
+            'id', 'uid', 'date', 'created',
+        )
+
+        for prop in PICK_PROPS:
+            val = new_dict.get(prop, ...)
+            if val is ...:
+                raise RuntimeError(f'从网页上提取的 new data 中缺少属性 {prop}，可能网页已经改版。')
+
+            old_dict[prop] = val
+
+        return old_dict
+
+    def extract_old_new_data(self, html: str) -> Tuple[Dict[str, Any], Dict[str, Any]]:
+        """
+        从页面 HTML 中提取 def 变量与 oldInfo 变量的值（分别叫做 new 与 old data），并用 Python dict 的形式返回。
+        当过短时，抛出异常。
+
+        :param html: 上报页面的 HTML
+        :return: 元组，(old_dict, new_dict)
+        """
+
         new_data = self.pure_util.match_re_group1(r'var def = (\{.+\});', html)
         old_data = self.pure_util.match_re_group1(r'oldInfo: (\{.+\}),', html)
 
@@ -34,11 +62,8 @@ class ProgramUtils:
         if len(old_data) < REASONABLE_LENGTH or len(new_data) < REASONABLE_LENGTH:
             raise ValueError('获取到的数据过短。请阅读脚本文档的「使用前提」部分。')
 
-        # 用原页面的「def」变量的值，覆盖掉「oldInfo」变量的值
-        old_dict: Dict[str, Any]
         old_dict, new_dict = json.loads(old_data), json.loads(new_data)
-        old_dict.update(new_dict)
-        return old_dict
+        return old_dict, new_dict
 
     def is_data_broken(self, data: Dict[str, Any]) -> bool:
         """
@@ -50,9 +75,12 @@ class ProgramUtils:
         # self.pure_util 太长了
         util = self.pure_util
 
-        # 「其他信息」一栏存在
-        if 'remark' not in data:
-            return True
+        MUST_EXIST_PROPERTIES = (
+            'remark', 'jcbhlx', 'jcbhrq', 'gllx', 'glksrq', 'jcjg', 'qksm',
+        )
+        for prop in MUST_EXIST_PROPERTIES:
+            if prop not in data:
+                return True
 
         # `tw` 数据必须在 1 到 9 之间
         if not util.is_number_data_in_range(data.get('tw'), (1, 10)):
@@ -66,6 +94,7 @@ class ProgramUtils:
         BINARY_PROPERTIES = (
             'sftjwh', 'sftjhb', 'sfcxtz', 'sfyyjc',
             'sfjcwhry', 'sfjchbry', 'sfjcbh', 'sfcyglq', 'sfcxzysx',
+            'ismoved', 'sfsfbh',
         )
 
         for prop in BINARY_PROPERTIES:
@@ -86,20 +115,6 @@ class ProgramUtils:
 
         # 仅用于类型检查器的类型转换
         return cast(VerifiedData, data)
-
-    def property_to_pinyin(self, prop: str) -> str:
-        """
-        将属性转换为其对应的汉语拼音缩写（仅支持有限字符，且不检查字符是否在范围内）
-        本函数是为了适应开发者的英文水平而产生的。详见：https://github.com/Liadrinz/waibao-script
-
-        :param prop: 中文属性（如：是否途径武汉）
-        :return: 汉语拼音缩写（如：sftjwh）
-        """
-        mapper = {x: y for x, y in zip(
-            '事于人体出北医否员处征患意接是期查检武汉注湖现病离经触途院隔项',
-            'syrtcbyfyczhyjsqcjwhzhxbljctygx',
-        )}
-        return ''.join(mapper[x] for x in prop)
 
     def data_sick_report(self, data: VerifiedData) -> List[str]:
         """
@@ -124,22 +139,37 @@ class ProgramUtils:
         if isinstance(data['remark'], str) and data['remark'].strip() != '':
             abnormal_items.append('您的「其他信息」一栏不为空')
 
-        BINARY_PROPERTIES = (
-            '是否途经武汉',
-            '是否途经湖北',
-            '是否出现体征',
-            '是否医院检查',
-            '是否接触武汉人员',
-            '是否接触湖北人员',
-            '是否接触病患',
-            '是否处于隔离期',
-            '是否出现注意事项',
-        )
+        if self.pure_util.looks_truthy(data['sfsfbh']) or self.pure_util.looks_truthy(data['ismoved']):
+            abnormal_items.append('您可能昨天或今天去了别的地方，导致位置有变化；现在提交将导致数据异常，请您今天手动提交')
 
-        for prop in BINARY_PROPERTIES:
-            pinyin_prop = self.property_to_pinyin(prop)
-            if int(data[pinyin_prop]) == 1:
-                abnormal_items.append(f'「{prop}」，您填了「是」')
+        BINARY_PROPERTIES = {
+            'sfcxtz': '是否出现症状',
+            'sfcxzysx': '是否有值得注意的情况',
+            'sfcyglq': '是否处于隔离期',
+            'sfjcbh': '是否接触病患',
+            'sfjchbry': '是否接触湖北人员',
+            'sfjcwhry': '是否接触武汉人员',
+            'sftjhb': '是否途经湖北',
+            'sftjwh': '是否途经武汉',
+            'sfyyjc': '是否到医院检查',
+        }
+
+        for prop, desc in BINARY_PROPERTIES.items():
+            if self.pure_util.looks_truthy(data[prop]):
+                abnormal_items.append(f'「{desc}」，您填了「是」')
+
+        PROPS_SHOULD_BE_FALSY = {
+            'jcbhlx': '接触人群类型',
+            'jcbhrq': '接触时间',
+            'gllx': '观察场所',
+            'glksrq': '观察开始时间',
+            'jcjg': '检查结果',
+            'qksm': '情况说明',
+        }
+
+        for prop, desc in PROPS_SHOULD_BE_FALSY.items():
+            if self.pure_util.looks_truthy(data[prop]):
+                abnormal_items.append(f'您填写了「{desc}」，但健康人应当留空')
 
         return abnormal_items
 
@@ -159,6 +189,7 @@ class ProgramUtils:
         err_msg: List[str] = ['\n您上一次填报的数据中，以下数据异常：\n']
         for i in sick_list:
             err_msg.append('· ' + i)
-        err_msg.append('\n由于您开启了 STOP_WHEN_SICK 配置，且检测到您数据为生病数据，自动上报失败；您需要手动上报。')
+        err_msg.append('\n由于您开启了 STOP_WHEN_SICK 配置，且检测到您数据为异常数据，自动上报失败；'
+                       '请您今天手动填报正常数据，从明天开始再自动填报。')
 
         raise RuntimeError('\n'.join(err_msg))

@@ -36,10 +36,38 @@ class Test_PureUtils(unittest.TestCase):
         with self.assertRaises(BaseException) as _ctxt:
             self.u.match_re_group1(r'abc(\d+)def', 'abcdef')
 
-        self.assertEqual(self.u.match_re_group1(r'abc(\d+)def', 'abc1234def'), '1234')
+        self.assertEqual('1234', self.u.match_re_group1(r'abc(\d+)def', 'abc1234def'))
 
     def test_matchReGroup1_2Group(self):
-        self.assertEqual(self.u.match_re_group1(r'abc(\d+)(def)', 'abc1234def'), '1234')
+        self.assertEqual('1234', self.u.match_re_group1(r'abc(\d+)(def)', 'abc1234def'))
+
+    def test_looksTruthy(self):
+        self.assertTrue(PureUtils.looks_truthy('Fuck You'))
+        self.assertTrue(PureUtils.looks_truthy('true'))
+        self.assertTrue(PureUtils.looks_truthy('1 '))
+        self.assertTrue(PureUtils.looks_truthy(1))
+        self.assertTrue(PureUtils.looks_truthy([[]]))
+
+        self.assertFalse(PureUtils.looks_truthy('fAlSe'))
+        self.assertFalse(PureUtils.looks_truthy(' 0'))
+        self.assertFalse(PureUtils.looks_truthy(0))
+        self.assertFalse(PureUtils.looks_truthy(dict()))
+        self.assertFalse(PureUtils.looks_truthy([0]))
+        self.assertFalse(PureUtils.looks_truthy(None))
+
+    def test_looksFalsy(self):
+        self.assertFalse(PureUtils.looks_falsy('Fuck You'))
+        self.assertFalse(PureUtils.looks_falsy('true'))
+        self.assertFalse(PureUtils.looks_falsy('1 '))
+        self.assertFalse(PureUtils.looks_falsy(1))
+        self.assertFalse(PureUtils.looks_falsy([[]]))
+
+        self.assertTrue(PureUtils.looks_falsy('fAlSe'))
+        self.assertTrue(PureUtils.looks_falsy(' 0'))
+        self.assertTrue(PureUtils.looks_falsy(0))
+        self.assertTrue(PureUtils.looks_falsy(dict()))
+        self.assertTrue(PureUtils.looks_falsy([0]))
+        self.assertTrue(PureUtils.looks_falsy(None))
 
 
 if __name__ == '__main__':

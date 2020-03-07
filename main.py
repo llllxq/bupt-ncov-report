@@ -51,6 +51,13 @@ CONFIG_SCHEMA: Dict[str, ConfigSchemaItem] = {
         default=False,
         type=bool,
     ),
+    'BNR_NOT_BUPT': ConfigSchemaItem(
+        description='（可选）此脚本默认供北邮学生使用，运行过程中会模拟北邮「疫情防控通」的前端逻辑，'
+                    '这些逻辑可能不适用于外校。当您不是北邮学生时，请开启此配置。',
+        for_short='',
+        default=False,
+        type=bool,
+    ),
 }
 PROGRAM_DESC = '自动填写北邮「疫情防控通」的每日上报信息。'
 

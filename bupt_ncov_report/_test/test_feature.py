@@ -5,129 +5,12 @@ import unittest
 from typing import Any, Dict, List, MutableMapping, NamedTuple, Optional, Tuple
 
 from bupt_ncov_report import *
+from bupt_ncov_report._test.constant import *
 
 LOGIN_PAGE_URL = r'https://app.bupt.edu.cn/uc/wap/login'
 LOGIN_API_RESP = r'''{"e":0,"m":"操作成功","d":{}}'''
 LOGIN_API_FAILED_RESP = r'''{"e":0,"m":"ユーザーまたはパスワードは正しくありません。","d":{}}'''
 REPORT_API_RESP = r'''{"e":1,"m":"今天已经填报了","d":{}, "f": "bupt_ncov_report-FeatureTest"}'''
-REPORT_PAGE_HTML = r'''
-<!DOCTYPE html>
-<html lang="zh-CN">
-
-<head>
-<title>每日上报</title>
-</head>
-
-<body class="">
-
-<script type="text/javascript">
-  var def = {"address": "abc", "area": "", "bztcyy": "1", "city": "", "created": "1141141919", "created_uid": "0", "date": "20770101", "fjsj": "0", "fxyy": "", "geo_api_info": "ghi", "glksrq": "", "gllx": "", "gwszdd": "", "id": "114514", "jcbhlx": "", "jcbhrq": "", "jchbryfs": "", "jcjg": "", "jcjgqr": "0", "jcqzrq": "", "jcwhryfs": "", "jhfjhbcc": "", "jhfjjtgj": "", "jhfjrq": "", "jhfjsftjhb": "0", "jhfjsftjwh": "0", "jrdqjcqk": [], "jrdqtlqk": [], "jrsfqzfy": "", "jrsfqzys": "", "province": "def", "qksm": "", "remark": "", "sfcxtz": "0", "sfcxzysx": "0", "sfcyglq": "0", "sfjcbh": "0", "sfjchbry": "0", "sfjcqz": "", "sfjcwhry": "0", "sfsfbh": "0", "sftjhb": "0", "sftjwh": "0", "sfyqjzgc": "", "sfyyjc": "0", "sfzx": "0", "szgj": "", "tw": "3", "uid": "1919", "xjzd": "\u5317\u4eac"};
-  var vm = new Vue({
-    el: '.form-detail2',
-    data: {
-      realname: '田所浩二',
-      number: '2020114514',
-      date: '2020-02-08',
-      info: $.extend({ ismoved: 0 }, def),
-      oldInfo: {"address": "123", "area": "1", "bztcyy": "1", "city": ""},
-      tipMsg: '',
-      ajaxLock: false,
-      showFxyy: false,
-      hasFlag: '1',
-    }
-  });
-
-</script>
-</body>
-
-</html>
-'''
-
-POST_DATA_NORMAL = {
-    'address': 'abc',
-    'area': '',
-    'bztcyy': '1',
-    'city': '',
-    'created': '1141141919',
-    'created_uid': '0',
-    'date': '20770101',
-    'fjsj': '0',
-    'fxyy': '',
-    'geo_api_info': 'ghi',
-    'glksrq': '',
-    'gllx': '',
-    'gwszdd': '',
-    'id': '114514',
-    'jcbhlx': '',
-    'jcbhrq': '',
-    'jchbryfs': '',
-    'jcjg': '',
-    'jcjgqr': '0',
-    'jcqzrq': '',
-    'jcwhryfs': '',
-    'jhfjhbcc': '',
-    'jhfjjtgj': '',
-    'jhfjrq': '',
-    'jhfjsftjhb': '0',
-    'jhfjsftjwh': '0',
-    'jrdqjcqk': [],
-    'jrdqtlqk': [],
-    'jrsfqzfy': '',
-    'jrsfqzys': '',
-    'province': 'def',
-    'qksm': '',
-    'remark': '',
-    'sfcxtz': '0',
-    'sfcxzysx': '0',
-    'sfcyglq': '0',
-    'sfjcbh': '0',
-    'sfjchbry': '0',
-    'sfjcqz': '',
-    'sfjcwhry': '0',
-    'sfsfbh': '0',
-    'sftjhb': '0',
-    'sftjwh': '0',
-    'sfyqjzgc': '',
-    'sfyyjc': '0',
-    'sfzx': '0',
-    'szgj': '',
-    'tw': '3',
-    'uid': '1919',
-    'xjzd': '北京',
-}
-
-REPORT_PAGE_HTML_OF_SICK_PEOPLE = r'''
-<!DOCTYPE html>
-<html lang="zh-CN">
-
-<head>
-<title>每日上报</title>
-</head>
-
-<body class="">
-
-<script type="text/javascript">
-  var def = {"address": "abc", "area": "", "bztcyy": "1", "city": "", "created": "1141141919", "created_uid": "0", "date": "20770101", "fjsj": "0", "fxyy": "", "geo_api_info": "ghi", "glksrq": "", "gllx": "", "gwszdd": "", "id": "114514", "jcbhlx": "", "jcbhrq": "", "jchbryfs": "", "jcjg": "", "jcjgqr": "0", "jcqzrq": "", "jcwhryfs": "", "jhfjhbcc": "", "jhfjjtgj": "", "jhfjrq": "", "jhfjsftjhb": "0", "jhfjsftjwh": "0", "jrdqjcqk": [], "jrdqtlqk": [], "jrsfqzfy": "", "jrsfqzys": "", "province": "def", "qksm": "", "remark": "", "sfcxtz": "0", "sfcxzysx": "0", "sfcyglq": "0", "sfjcbh": "1", "sfjchbry": "0", "sfjcqz": "", "sfjcwhry": "0", "sfsfbh": "0", "sftjhb": "0", "sftjwh": "0", "sfyqjzgc": "", "sfyyjc": "0", "sfzx": "0", "szgj": "", "tw": "3", "uid": "1919", "xjzd": "\u5317\u4eac"};
-  var vm = new Vue({
-    el: '.form-detail2',
-    data: {
-      realname: '田所浩二',
-      number: '2020114514',
-      date: '2020-02-08',
-      info: $.extend({ ismoved: 0 }, def),
-      oldInfo: {"address": "123", "area": "1", "bztcyy": "1", "city": ""},
-      tipMsg: '',
-      ajaxLock: false,
-      showFxyy: false,
-      hasFlag: '1',
-    }
-  });
-
-</script>
-</body>
-
-</html>
-'''
 
 LOGIN_PAGE_HTML = r'''
 <!DOCTYPE html>
@@ -305,13 +188,13 @@ def correctly_login_tester(self: unittest.TestCase, session: MockRequestsSession
     """测试：断言正确提交登录请求"""
 
     login_history = session.find_history(LOGIN_API)
-    self.assertEqual(len(login_history), 1)
+    self.assertEqual(1, len(login_history))
     login_history = login_history[0]
 
-    self.assertEqual(login_history.data, {
+    self.assertEqual({
         'username': '2020114514',
         'password': '114514',
-    })
+    }, login_history.data)
 
 
 def visited_url_tester(self: unittest.TestCase, session: MockRequestsSession, url: str) -> None:
@@ -324,7 +207,7 @@ def visited_url_tester(self: unittest.TestCase, session: MockRequestsSession, ur
     """
 
     history = session.find_history(url)
-    self.assertEqual(len(history), 1)
+    self.assertEqual(1, len(history))
 
 
 def not_visit_url_tester(self: unittest.TestCase, session: MockRequestsSession, url: str) -> None:
@@ -337,17 +220,17 @@ def not_visit_url_tester(self: unittest.TestCase, session: MockRequestsSession, 
     """
 
     history = session.find_history(url)
-    self.assertEqual(history, [])
+    self.assertEqual([], history)
 
 
 def correctly_post_report_data_tester(self: unittest.TestCase, session: MockRequestsSession) -> None:
     """测试：断言上报 API 提交内容正确"""
 
     report_history = session.find_history(REPORT_API)
-    self.assertEqual(len(report_history), 1)
+    self.assertEqual(1, len(report_history))
     report_history = report_history[0]
 
-    self.assertEqual(report_history.data, POST_DATA_NORMAL)
+    self.assertEqual(POST_DATA_FINAL, report_history.data)
 
 
 def log_written_tester(self: unittest.TestCase, log_path: str, written_text: str) -> None:
@@ -366,7 +249,7 @@ def log_written_tester(self: unittest.TestCase, log_path: str, written_text: str
 
 def generate_config(self: unittest.TestCase, stop_when_sick: bool) -> Dict[str, Any]:
     """
-    生成 config。会返回完美 config。
+    生成 config。会返回完美 config，启用所有功能。
     会调用 tempfile 以生成临时日志文件。其中的 BNR_LOG_PATH 是合法的日志地址。
 
     :param self: 测试类的实例。
@@ -426,6 +309,7 @@ def setup_testCase(self: unittest.TestCase, stop_when_sick: bool, login_success:
     :param is_sick: 是否模拟用户数据带病的场景
     :return: None
     """
+    # 初始化 config 对象
     self.config = generate_config(self, stop_when_sick=stop_when_sick)
 
     self.sess = MockRequestsSession()
@@ -456,11 +340,14 @@ class TestFeature_Normal(unittest.TestCase):
         log_written_tester(self, self.config['BNR_LOG_PATH'], 'bupt_ncov_report-FeatureTest')
 
         # 状态码为 0
-        self.assertEqual(self.prog.get_exit_status(), 0)
+        self.assertEqual(0, self.prog.get_exit_status())
 
     def test_everythingAsUsual(self):
         setup_testCase(self, login_success=True, stop_when_sick=True, is_sick=False)
         self._expected_behavior()
+
+    def tearDown(self) -> None:
+        print('--- 当前测试完成 ---')
 
 
 class TestFeature_SickButDoNotStop(unittest.TestCase):
@@ -480,11 +367,14 @@ class TestFeature_SickButDoNotStop(unittest.TestCase):
         log_written_tester(self, self.config['BNR_LOG_PATH'], 'bupt_ncov_report-FeatureTest')
 
         # 状态码为 0
-        self.assertEqual(self.prog.get_exit_status(), 0)
+        self.assertEqual(0, self.prog.get_exit_status())
 
     def test_sickButDoNotStop(self):
         setup_testCase(self, login_success=True, stop_when_sick=False, is_sick=True)
         self._expected_behavior()
+
+    def tearDown(self) -> None:
+        print('--- 当前测试完成 ---')
 
 
 class TestFeature_FailWhenRunning(unittest.TestCase):
@@ -506,7 +396,7 @@ class TestFeature_FailWhenRunning(unittest.TestCase):
         log_written_tester(self, self.config['BNR_LOG_PATH'], 'RuntimeError')
 
         # 状态码不为 0
-        self.assertNotEqual(self.prog.get_exit_status(), 0)
+        self.assertNotEqual(0, self.prog.get_exit_status())
 
     def test_sickData_Stop(self):
         setup_testCase(self, login_success=True, stop_when_sick=True, is_sick=True)
@@ -515,6 +405,9 @@ class TestFeature_FailWhenRunning(unittest.TestCase):
     def test_loginFailed_Stop(self):
         setup_testCase(self, login_success=False, stop_when_sick=True, is_sick=False)
         self._expected_behavior()
+
+    def tearDown(self) -> None:
+        print('--- 当前测试完成 ---')
 
 
 if __name__ == '__main__':
