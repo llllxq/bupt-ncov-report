@@ -1,6 +1,6 @@
 # BUPT 疫情防控通 自动上报脚本
 
-[![mypy](https://github.com/ipid/bupt-ncov-report/workflows/mypy/badge.svg)](https://github.com/ipid/bupt-ncov-report/actions) [![单元&功能测试](https://github.com/ipid/bupt-ncov-report/workflows/%E5%8D%95%E5%85%83&%E5%8A%9F%E8%83%BD%E6%B5%8B%E8%AF%95%20%20%20%20%20/badge.svg)](https://github.com/ipid/bupt-ncov-report/actions) [![Coverage 状态](https://coveralls.io/repos/github/ipid/bupt-ncov-report/badge.svg?branch=master)](https://coveralls.io/github/ipid/bupt-ncov-report?branch=master)
+[![mypy](https://github.com/ipid/bupt-ncov-report/workflows/mypy/badge.svg)](https://github.com/ipid/bupt-ncov-report/actions) [![单元&功能测试](https://github.com/ipid/bupt-ncov-report/workflows/%E5%8D%95%E5%85%83&%E5%8A%9F%E8%83%BD%E6%B5%8B%E8%AF%95%20%20%20%20%20/badge.svg)](https://github.com/ipid/bupt-ncov-report/actions) [![Coverage 状态](https://coveralls.io/repos/github/ipid/bupt-ncov-report/badge.svg?branch=master)](https://coveralls.io/github/ipid/bupt-ncov-report?branch=master) ![Python 版本](https://img.shields.io/badge/python-%3e%3d%203.6-blue)
 
 该脚本可以帮助您操作北邮「疫情防控通」，自动完成每日上报。
 
