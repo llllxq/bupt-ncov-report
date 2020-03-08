@@ -1,6 +1,16 @@
-# BUPT 疫情防控通 自动上报脚本
-
-[![mypy](https://github.com/ipid/bupt-ncov-report/workflows/mypy/badge.svg)](https://github.com/ipid/bupt-ncov-report/actions) [![单元&功能测试](https://github.com/ipid/bupt-ncov-report/workflows/%E5%8D%95%E5%85%83&%E5%8A%9F%E8%83%BD%E6%B5%8B%E8%AF%95%20%20%20%20%20/badge.svg)](https://github.com/ipid/bupt-ncov-report/actions) [![Coverage 状态](https://coveralls.io/repos/github/ipid/bupt-ncov-report/badge.svg?branch=master)](https://coveralls.io/github/ipid/bupt-ncov-report?branch=master) ![Python 版本](https://img.shields.io/badge/python-%3e%3d%203.6-blue)
+<h2 align="center">BUPT 疫情防控通 自动上报脚本</h2>
+<p align="center">
+    <a href="https://github.com/ipid/bupt-ncov-report/actions">
+        <img src="https://github.com/ipid/bupt-ncov-report/workflows/mypy/badge.svg" alt="mypy徽章">
+    </a>
+    <a href="https://github.com/ipid/bupt-ncov-report/actions">
+        <img src="https://github.com/ipid/bupt-ncov-report/workflows/%E5%8D%95%E5%85%83&%E5%8A%9F%E8%83%BD%E6%B5%8B%E8%AF%95%20%20%20%20%20/badge.svg" alt="单元&amp;功能测试">
+    </a>
+    <a href="https://coveralls.io/github/ipid/bupt-ncov-report?branch=master">
+        <img src="https://coveralls.io/repos/github/ipid/bupt-ncov-report/badge.svg?branch=master">
+    </a>
+    <img src="https://img.shields.io/badge/python-%3e%3d%203.6-blue" alt="Python 版本">
+</p>
 
 该脚本可以帮助您操作北邮「疫情防控通」，自动完成每日上报。
 
@@ -10,9 +20,9 @@
 
 - 当检测到您自动上报的数据，表明您为**疑似病患**时，只要您开启了一个选项（见下方），就能**阻止上报**，防止您引起学校注意。
 - 既可以部署在服务器上，也可以部署在 GCP Cloud Function、AWS Lambda 或阿里云、腾讯云云函数等支持 Python 的云函数平台上。
-- 上报完成后，可通过 **Telegram 机器人**来接收上报结果，方便您得知自动上报是否成功
+- 上报完成后，可通过**微信**和 **Telegram 机器人**来接收上报结果，仅需手机就能知道上报是否成功
 
-![Telegram 提醒](https://i.loli.net/2020/02/06/a8vimqWH7lVInX6.png)
+![Telegram](https://i.imgur.com/jrQaZ9s.png) ![Server酱](https://i.imgur.com/tuD9VHq.png)
 
 - 可输出**日志文件**，得知运行失败原因
 - 单元测试覆盖至少 85% 的代码
