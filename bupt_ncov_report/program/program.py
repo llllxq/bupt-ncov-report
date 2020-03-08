@@ -2,17 +2,16 @@ __all__ = (
     'Program',
 )
 
-import html
 import json
 import logging
 import sys
 import traceback
-from typing import Mapping, Optional, cast
-import time
+from typing import List, Mapping, Optional, cast
 
 import requests
 
 from ..constant import *
+from ..notifier import *
 from ..predef import *
 from ..program_utils import *
 
@@ -41,16 +40,22 @@ class Program:
     }
 
     def __init__(
-            self,
-            # 程序的配置
+            self, *,
             config: Mapping[str, Optional[ConfigValue]],
-
-            # 以下为 Program 类所依赖的类（我好想要依赖注入啊）
             program_utils: ProgramUtils,
             session: requests.Session,
+            notifiers: List[INotifier],
     ):
+        """
+        :param config: 程序的配置
+        :param program_utils: 类的依赖（我好想要依赖注入啊）
+        :param session: 类的依赖（求求大佬们写个好用的 Python 依赖注入库吧）
+        :param notifiers: INotifier 子类，用于通知用户执行结果（用参数传依赖太恶心了啊跪谢）
+        """
+
         self._prog_util = program_utils
         self._sess = session
+        self._notifiers = notifiers
 
         self._check_config(config)
 
@@ -171,9 +176,9 @@ class Program:
         """
         真正的主函数。
         该函数读取程序配置，并尝试调用工作函数；
-        该函数随后获取工作函数的返回值或异常内容，通过 Telegram 机器人发送给用户。
+        该函数随后获取工作函数的返回值或异常内容，通过 INotifier 发送给用户。
 
-        :return: 通过 Telegram 机器人发送的信息
+        :return: 通过 INotifier 发送的信息
         """
         # 运行工作函数
         logger.info('运行工作函数')
@@ -186,66 +191,18 @@ class Program:
 
         # 生成消息并打印到控制台
         if success:
-            msg = f'[bupt-ncov-report] <b>成功：</b>服务器的返回是：\n\n' \
-                  f'<pre>{html.escape(res)}</pre>'
+            logger.info(f'成功：服务器的返回是：\n\n{res}')
         else:
-            msg = f'[bupt-ncov-report] <b>失败：</b>发生如下异常：\n\n' \
-                  f'<pre>{html.escape(res)}</pre>'
-        logger.info(msg)
+            logger.info(f'失败：发生如下异常：\n\n{res}')
 
-        # 如果用户指定了 Telegram 相关信息，就把消息通过 Telegram 发送给用户
-        if self._conf['TG_BOT_TOKEN'] is not None and self._conf['TG_CHAT_ID'] is not None:
-            logger.info('将运行结果通过 Telegram 机器人发送。')
+        # 将执行结果通过 INotifier 通知用户
+        for notifier in self._notifiers:
+            logger.info(f'通过「{notifier.PLATFORM_NAME}」给用户发送通知')
             try:
-                tg_res_raw = self._sess.post(
-                    f'https://api.telegram.org/bot{self._conf["TG_BOT_TOKEN"]}/sendMessage',
-                    json={
-                        'chat_id': self._conf['TG_CHAT_ID'],
-                        'text': msg,
-                        'parse_mode': 'HTML',
-                    },
-                    timeout=TIMEOUT_SECOND
-                )
-
-                tg_res = tg_res_raw.json()
-                if 'ok' not in tg_res:
-                    raise ValueError('Telegram API 的返回值很奇怪。')
-                if not tg_res['ok']:
-                    raise ValueError(f'Telegram API 调用失败，可能您的 Token 或 chat id 配置有误。'
-                                     f'API 的返回是：\n{tg_res}')
-
+                notifier.notify(success=success, msg=res)
             except:
-                # 将 Telegram 机器人的错误也打印下来
-                logger.error('调用 Telegram API 时发生错误。', exc_info=True)
-                success = False
-
-        # 如果用户指定了 server酱（server chan） 相关信息，就把消息通过 server酱 推送到用户微信
-        if self._conf['SERVER_CHAN_SCKEY'] is not None:
-            logger.info('将运行结果通过 server酱 推送到用户微信')
-            try:
-                sc_res_raw = self._sess.post(
-                    f'https://sc.ftqq.com/{self._conf["SERVER_CHAN_SCKEY"]}.send',
-                    data={
-                        'text': '每日上报已完成',
-                        'desp': time.asctime()+'\n'+msg  # SERVER酱不允许重复发送相同内容，故加上时间
-                    },
-                    timeout=TIMEOUT_SECOND
-                )
-
-                tg_res = sc_res_raw.json()
-                # if 'dataset' not in tg_res:
-                #     raise ValueError('Telegram API 的返回值很奇怪。')
-                if tg_res['errno'] != 0:
-                    raise ValueError(f'SERVER酱 调用失败，可能您的 SCKEY 配置有误。'
-                                     f'API 的返回是：\n{tg_res}'
-                                     f'您输入的SCKEY为\n{self._conf["SERVER_CHAN_SCKEY"]}')
-
-            except:
-                # 将 SERVER酱 机器人的错误也打印下来
-                logger.error('调用 SERVER酱 API 时发生错误。', exc_info=True)
-                success = False
+                logger.exception(f'使用「{notifier.PLATFORM_NAME}」通知失败，发生异常：')
 
         if not success:
             self._exit_status = 1
-
-        return msg
+        return res

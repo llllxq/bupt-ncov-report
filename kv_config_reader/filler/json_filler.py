@@ -2,10 +2,10 @@ __all__ = ('JsonFiller',)
 
 from typing import Optional
 
-from .base import BaseFiller
+from .base import IFiller
 
 
-class JsonFiller(BaseFiller):
+class JsonFiller(IFiller):
 
     def __init__(self, file_name: Optional[str] = None, read_from_config: Optional[str] = None):
         if file_name is None and read_from_config is None:

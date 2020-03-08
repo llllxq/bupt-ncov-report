@@ -11,7 +11,7 @@ from .._util import *
 from ..predef import *
 
 
-class CmdArgsFiller(BaseFiller):
+class CmdArgsFiller(IFiller):
     """
     从命令行参数中读取配置。
     参数为空且类型不为 bool 视作未填写；参数类型错误视作未填写。

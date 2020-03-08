@@ -244,7 +244,7 @@ POST_DATA_FINAL = {
 
 POST_DATA_SICK_ITEMS = {
     'jcjgqr': 1,
-    'remark': '不出门，我浑身难受',
+    'remark': '噔 噔 咚',
     'sfcxtz': 1,
     'sfcxzysx': 1,
     'sfcyglq': 1,
@@ -262,5 +262,5 @@ POST_DATA_SICK_ITEMS = {
     'gllx': '居家（指野兽邸）',
     'glksrq': '114514年',
     'jcjg': '昏睡',
-    'qksm': '二人幸终',
+    'qksm': '二 人 幸 终',
 }

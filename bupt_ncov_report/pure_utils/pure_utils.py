@@ -3,7 +3,7 @@ __all__ = (
 )
 
 import re
-from typing import Any, Tuple, Union, List
+from typing import Any, Tuple
 
 
 class PureUtils:

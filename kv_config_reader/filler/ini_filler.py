@@ -1,7 +1,7 @@
 __all__ = ('IniFiller',)
 
-from .base import BaseFiller
+from .base import IFiller
 
 
-class IniFiller(BaseFiller):
+class IniFiller(IFiller):
     pass

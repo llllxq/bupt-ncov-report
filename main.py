@@ -1,8 +1,8 @@
-﻿__all__ = (
+__all__ = (
     'main',
 )
 
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, cast
 
 import requests
 
@@ -51,18 +51,10 @@ CONFIG_SCHEMA: Dict[str, ConfigSchemaItem] = {
         default=False,
         type=bool,
     ),
-    'BNR_NOT_BUPT': ConfigSchemaItem(
-        description='（可选）此脚本默认供北邮学生使用，运行过程中会模拟北邮「疫情防控通」的前端逻辑，'
-                    '这些逻辑可能不适用于外校。当您不是北邮学生时，请开启此配置。',
-        for_short='',
-        default=False,
-        type=bool,
-    ),
     'SERVER_CHAN_SCKEY': ConfigSchemaItem(
-        description='（可选）如果您需要把执行结果通过SERVER酱(http://sc.ftqq.com/3.version)推送的微信，'
-                    '请设为SERVER酱为您提供的专属用户SCKEY',
-        for_short='用户SCKEY',
-        default=False,
+        description='（可选）如果您需要把执行结果通过 Server 酱推送到微信，请设为 Server 酱为您提供的 SCKEY。',
+        for_short='SCKEY',
+        default=None,
         type=str,
     ),
 }
@@ -76,13 +68,43 @@ def fill_config(config: Dict[str, Optional[ConfigValue]]) -> None:
     :return: None
     """
 
-    fillers: List[BaseFiller] = [
+    fillers: List[IFiller] = [
         EnvFiller(),
         CmdArgsFiller(description=PROGRAM_DESC),
     ]
 
     for filler in fillers:
         filler.fill(config, CONFIG_SCHEMA)
+
+
+def initialize_notifier(config: Dict[str, Optional[ConfigValue]]) -> List[INotifier]:
+    """
+    初始化 Notifier 对象，用于实现运行结果通知用户的功能。
+    :param config: 通过 kv_config_reader 获取到的配置
+    :return: list，元素是 INotifier 的子类
+    """
+    res: List[INotifier] = []
+
+    # 检查两个 Telegram 参数是否未同时填写
+    if bool(config['TG_BOT_TOKEN']) != bool(config['TG_CHAT_ID']):
+        raise ValueError('TG_BOT_TOKEN 与 TG_CHAT_ID 必须同时填写。')
+
+    # 若两个 Telegram 参数都填写了，则初始化 Telegram 通知器
+    if config['TG_BOT_TOKEN'] and config['TG_CHAT_ID']:
+        res.append(TelegramNotifier(
+            token=cast(str, config['TG_BOT_TOKEN']),
+            chat_id=cast(str, config['TG_CHAT_ID']),
+            session=requests.Session(),
+        ))
+
+    # 如果填写了 SCKEY，就初始化 Server 酱通知器
+    if config['SERVER_CHAN_SCKEY']:
+        res.append(ServerChanNotifier(
+            sckey=cast(str, config['SERVER_CHAN_SCKEY']),
+            sess=requests.Session(),
+        ))
+
+    return res
 
 
 def main(*wtf: object, **kwwtf: object) -> object:
@@ -95,8 +117,14 @@ def main(*wtf: object, **kwwtf: object) -> object:
     fill_config(config)
 
     # 搭积木；手动建立各个类的实例，并注入依赖
+    notifiers = initialize_notifier(config)
     pure_util = PureUtils()
-    program = Program(config, ProgramUtils(pure_util), requests.Session())
+    program = Program(
+        config=config,
+        program_utils=ProgramUtils(pure_util),
+        session=requests.Session(),
+        notifiers=notifiers,
+    )
 
     # 运行程序
     program.main()

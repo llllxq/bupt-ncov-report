@@ -4,8 +4,6 @@
 
 该脚本可以帮助您操作北邮「疫情防控通」，自动完成每日上报。
 
-
-
 <br>
 
 ## 特性
@@ -19,16 +17,11 @@
 - 可输出**日志文件**，得知运行失败原因
 - 单元测试覆盖至少 85% 的代码
 
-
-
-
 <br>
 
 ## 使用前提
 
 - 该脚本的工作方式为：爬取您上一次上报的信息，然后自动上报同样的信息。因此，使用前，您需要保证**昨天**~~_（格林威治时间）_~~（北京时间）已经正确填报了信息。如果您尚未填报，需要手动填报后，从**第二天开始**才能使用本脚本。
-
-
 
 <br>
 
@@ -40,8 +33,6 @@
 
 如果您并没有去过外地，那么这是因为脚本之前的实现有问题：它把您的省份、地点等信息覆盖掉了。**本次更新已经修复此问题**。请您今天手动填报，从明天开始再使用脚本。
 
-
-
 <br>
 
 ## 脚本依赖
@@ -49,21 +40,15 @@
 - Python 3.6 或以上
 - requests 库
 
-
-
 <br>
 
 ## 脚本部署
 
 本节以云服务器、AWS Lambda、GCP Cloud Function 为例阐述了部署的基本步骤，但本脚本也可以部署在其它的云函数平台上。欲知详情，请参考您的部署目标的文档。
 
-
-
 #### 注意事项
 
 - 如果您要自动运行本脚本，建议您于**每天上午 7 点的某分钟** 运行；在 0 点运行可能会失败。
-
-
 
 #### 部署在云服务器上
 
@@ -86,8 +71,6 @@
    2. https://crontab.guru/
 2. Windows 用户可以使用系统的「任务计划」功能。
 
-
-
 #### 部署在 AWS Lambda 上
 
 由于 AWS Lambda 不会自动下载依赖项，因此需要您手动下载依赖项并打包上传。
@@ -102,8 +85,6 @@
 
 **注：** 您可以通过 AWS CloudWatch 来自动执行该脚本。
 
-
-
 #### 部署在 GCP Cloud Function 上
 
 GCP 支持通过 `requirements.txt` 自动下载依赖项，因此将所有文件（包括 `requirements.txt`） 打包上传即可。您需要：
@@ -111,12 +92,11 @@ GCP 支持通过 `requirements.txt` 自动下载依赖项，因此将所有文�
 1. 在 Cloud Function 中创建新函数。
    1. 按照下方「脚本配置与运行」一节的说明，配置环境变量。
    2. 打包上传本仓库所有文件。
-      1. 除 `requirements.txt` 以外，其它非 `.py` 文件都可以忽略。
+      1. 您可以在 Linux 下（或 WSL 下）使用 gcp-zip.sh 脚本一键打包。
+      2. 手动打包时，除 `requirements.txt` 以外，其它非 `.py` 文件都可以忽略。
    3. 将要执行的函数设为 main。
 
 **注：** 建议您将该云函数的触发器设为 Cloud Pub/Sub 触发器，然后可以通过 GCP Cloud Scheduler 来自动执行该函数。
-
-
 
 <br>
 
@@ -128,18 +108,17 @@ GCP 支持通过 `requirements.txt` 自动下载依赖项，因此将所有文�
 
 需要设置的参数如下：
 
-| 环境变量       | 命令行参数       | 说明                                                         |
-| :------------- | ---------------- | :----------------------------------------------------------- |
-| BUPT_SSO_USER  | --bupt-sso-user  | 您登录[北邮门户（https://my.bupt.edu.cn/）](https://my.bupt.edu.cn/)时使用的用户名，通常是您的学工号 |
-| BUPT_SSO_PASS  | --bupt-sso-pass  | 您登录[北邮门户（https://my.bupt.edu.cn/）](https://my.bupt.edu.cn/)时使用的密码 |
-| TG_BOT_TOKEN   | --tg-bot-token   | （可选）如果您需要把执行结果通过 Telegram 机器人告知，请将此变量设为您的 Telegram 机器人的 API Token |
-| TG_CHAT_ID     | --tg-chat-id     | （可选）如果您需要把执行结果通过 Telegram 机器人告知，请将此变量设为您自己的用户 id |
-| BNR_LOG_PATH   | --bnr-log-path   | （可选）日志文件存放的路径，未设置则不输出日志文件。（注意日志中可能有敏感信息） |
-| STOP_WHEN_SICK | --stop-when-sick | （可选）当检测到您上报的数据表明您为疑似病患时（如体温>=37°C、接触过确诊人群等），若您开启了此选项，将停止自动上报，以防止您连续多日上报异常数据。 |
+| 环境变量          | 命令行参数          | 说明                                                         |
+| :---------------- | ------------------- | :----------------------------------------------------------- |
+| BUPT_SSO_USER     | --bupt-sso-user     | 您登录[北邮门户（https://my.bupt.edu.cn/）](https://my.bupt.edu.cn/)时使用的用户名，通常是您的学工号 |
+| BUPT_SSO_PASS     | --bupt-sso-pass     | 您登录[北邮门户（https://my.bupt.edu.cn/）](https://my.bupt.edu.cn/)时使用的密码 |
+| TG_BOT_TOKEN      | --tg-bot-token      | （可选）如果您需要把执行结果通过 Telegram 机器人告知，请将此变量设为您的 Telegram 机器人的 API Token |
+| TG_CHAT_ID        | --tg-chat-id        | （可选）如果您需要把执行结果通过 Telegram 机器人告知，请将此变量设为您自己的用户 id |
+| BNR_LOG_PATH      | --bnr-log-path      | （可选）日志文件存放的路径，未设置则不输出日志文件。（注意日志中可能有敏感信息） |
+| STOP_WHEN_SICK    | --stop-when-sick    | （可选）当检测到您上报的数据表明您为疑似病患时（如体温>=37°C、接触过确诊人群等），若您开启了此选项，将停止自动上报，以防止您连续多日上报异常数据。 |
+| SERVER_CHAN_SCKEY | --server-chan-sckey | （可选）如果您需要把执行结果通过 Server 酱推送到微信，请设为 Server 酱为您提供的 SCKEY。 |
 
 **注：** 优先级为：命令行参数 > 环境变量 > 代码中的默认值。其中前者覆盖后者。
-
-
 
 #### 运行示例
 
@@ -147,8 +126,6 @@ GCP 支持通过 `requirements.txt` 自动下载依赖项，因此将所有文�
 
 - **用户名：** 2020114514
 - **密码：** 114514
-
-
 
 #### 设置环境变量
 
@@ -166,8 +143,6 @@ python3 main.py
 
 - 在 Windows 上，您使用的命令可能是 `python` 而不是 `python3`。您可以使用系统自带的「编辑环境变量」工具，也可以在使用 `cmd` 和 PowerShell 时设置环境变量。其中，`cmd` 和 PowerShell 的环境变量的语法各不相同，请自行研究。
 - 各配置所对应的环境变量可查看上表。
-
-
 
 #### 使用命令行参数
 
@@ -189,24 +164,22 @@ python3 main.py --bupt-sso-pass=114514 --stop-when-sick
 
 **注：** 各配置所对应的命令行参数可查看上表，也可以运行命令 `python main.py --help` 查看。
 
-
-
 #### 修改代码（不推荐）
 
 若您部署脚本的目标平台既不提供环境变量功能，也不允许设置命令行参数，那么您可以通过修改代码的方式提供配置。找到 CONFIG_SCHEMA 变量，给对应配置的 default 属性填入您的值即可。
 
-## 配置server酱推送结果到微信
+<br>
 
-server酱可以非常简单的配置结果推送，字需要微信绑定即可，使用方法请见[server酱官网](http://sc.ftqq.com/)
+## 将运行结果推送到微信上
 
-在server酱官网登录并绑定微信后能获得一个SCKEY，将SCKEY作为参数传入即可：
+本脚本支持使用「[Server 酱](https://sc.ftqq.com/3.version)」将运行结果通过微信推送到手机上。
+
+您只需要根据[官网上的介绍](https://sc.ftqq.com/3.version)，在「Server 酱」官网登录并绑定微信后，将网站提供的 SCKEY 作为参数传入即可：
 
 ```bash
 export BUPT_SSO_USER=2020114514
-python3 main.py --bupt-sso-pass=114514 --server-chan-sckey=xxxxxxxx
+python3 main.py --bupt-sso-pass=114514 --server-chan-sckey=SCUxxxxxxxxxxxxxxxx
 ```
-
-
 
 <br>
 
@@ -221,21 +194,15 @@ export HTTP_PROXY=http://127.0.0.1:1080
 export HTTPS_PROXY=http://127.0.0.1:1080
 ```
 
-
-
 <br>
 
 ## 测试与类型检查
 
 当您修改代码后，您可以运行单元测试或类型检查来检测代码正确性。
 
-
-
 #### 运行测试
 
 在根目录运行命令 `python3 -m unittest` 即可。（Windows 下您可能需要 `python` 命令）
-
-
 
 #### 运行类型检查
 
@@ -246,8 +213,6 @@ export HTTPS_PROXY=http://127.0.0.1:1080
 - 运行命令：`mypy main.py`
 
 **注：** 本项目的 GitHub Actions 运行 mypy 时指定了更严格的规则。可以阅读 .github 目录下的相关文件来了解详情。
-
-
 
 <br>
 

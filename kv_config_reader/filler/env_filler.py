@@ -10,7 +10,7 @@ from .._util import *
 from ..predef import *
 
 
-class EnvFiller(BaseFiller):
+class EnvFiller(IFiller):
     """从环境变量中读取配置。"""
 
     def __init__(self, env: Optional[Mapping[str, str]] = None):
