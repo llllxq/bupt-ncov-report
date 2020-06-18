@@ -156,7 +156,7 @@ class Test_ProgramUtils_StopWhenSick(unittest.TestCase):
                 self.u.check_data_sick(data)
 
     def test_dataSickReport_correct(self):
-        """检测改变 sfjcbh 属性时，报告中是否有「是否接触病患」"""
+        """检测改变 sfjcbh 属性时，报告中是否有「是否接触感染人群」"""
         data = POST_DATA_FINAL.copy()
         data['sfjcbh'] = 1
 
@@ -164,7 +164,7 @@ class Test_ProgramUtils_StopWhenSick(unittest.TestCase):
         self.assertEqual(1, len(sick_report))
 
         shjcbh_report = sick_report[0]
-        self.assertIn('是否接触病患', shjcbh_report)
+        self.assertIn('是否接触感染人群', shjcbh_report)
 
 
 if __name__ == '__main__':

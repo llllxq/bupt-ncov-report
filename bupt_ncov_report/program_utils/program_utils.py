@@ -76,7 +76,7 @@ class ProgramUtils:
         util = self.pure_util
 
         MUST_EXIST_PROPERTIES = (
-            'remark', 'jcbhlx', 'jcbhrq', 'gllx', 'glksrq', 'jcjg', 'qksm',
+            'tw', 'jcjgqr', 'remark', 'sfsfbh', 'ismoved',
         )
         for prop in MUST_EXIST_PROPERTIES:
             if prop not in data:
@@ -92,9 +92,8 @@ class ProgramUtils:
 
         # 值为 0 或 1 的属性
         BINARY_PROPERTIES = (
-            'sftjwh', 'sftjhb', 'sfcxtz', 'sfyyjc',
-            'sfjcwhry', 'sfjchbry', 'sfjcbh', 'sfcyglq', 'sfcxzysx',
-            'ismoved', 'sfsfbh',
+            'zgfxdq', 'sfcxtz', 'sfjcbh', 'mjry',
+            'csmjry', 'sfcyglq', 'szsqsfybl', 'sfcxzysx',
         )
 
         for prop in BINARY_PROPERTIES:
@@ -143,33 +142,19 @@ class ProgramUtils:
             abnormal_items.append('您可能昨天或今天去了别的地方，导致位置有变化；现在提交将导致数据异常，请您今天手动提交')
 
         BINARY_PROPERTIES = {
+            'zgfxdq': '是否在中高风险地区',
             'sfcxtz': '是否出现症状',
+            'sfjcbh': '是否接触感染人群',
+            'mjry': '是否接触‘密切接触’人员',
+            'csmjry': '是否去过疫情场所',
+            'sfcyglq': '是否处于观察期',
+            'szsqsfybl': '所在社区是否有确诊病例',
             'sfcxzysx': '是否有值得注意的情况',
-            'sfcyglq': '是否处于隔离期',
-            'sfjcbh': '是否接触病患',
-            'sfjchbry': '是否接触湖北人员',
-            'sfjcwhry': '是否接触武汉人员',
-            'sftjhb': '是否途经湖北',
-            'sftjwh': '是否途经武汉',
-            'sfyyjc': '是否到医院检查',
         }
 
         for prop, desc in BINARY_PROPERTIES.items():
             if self.pure_util.looks_truthy(data[prop]):
                 abnormal_items.append(f'「{desc}」，您填了「是」')
-
-        PROPS_SHOULD_BE_FALSY = {
-            'jcbhlx': '接触人群类型',
-            'jcbhrq': '接触时间',
-            'gllx': '观察场所',
-            'glksrq': '观察开始时间',
-            'jcjg': '检查结果',
-            'qksm': '情况说明',
-        }
-
-        for prop, desc in PROPS_SHOULD_BE_FALSY.items():
-            if self.pure_util.looks_truthy(data[prop]):
-                abnormal_items.append(f'您填写了「{desc}」，但健康人应当留空')
 
         return abnormal_items
 
