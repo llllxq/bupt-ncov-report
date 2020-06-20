@@ -14,7 +14,7 @@
 
 该脚本可以帮助您操作北邮「疫情防控通」，自动完成每日上报。
 
-本工具尚未实现自动更新，所以需要用户频繁更新。如果您不喜欢这一点，有一款[十分优秀的 Telegram 机器人](https://t.me/buptncovbot)提供自动上报服务，欢迎使用。
+本工具尚未实现自动更新，所以需要用户频繁更新。如果您不喜欢这一点，有一款 Telegram 机器人 ([链接](https://t.me/buptncovbot)，[以 GNUv3 授权的源代码](https://github.com/Henryzhao96/bupt-ncov-report-tgbot)）提供自动上报服务，欢迎使用。
 
 <br>
 
