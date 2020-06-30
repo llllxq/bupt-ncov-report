@@ -161,6 +161,10 @@ def register_respond_to_mock(session: MockRequestsSession, login_success: bool, 
         action='POST', url=f'https://api.telegram.org/bot{TG_TOKEN}/sendMessage'
     ).respond(text=TG_API_SUCC_RESP)
 
+    session.when(
+        action='POST', url=f'https://sc.ftqq.com/{SCKEY}.send'
+    ).respond(text=SERV_CHAN_SUCC_RESP)
+
 
 def setup_testCase(
         self: unittest.TestCase, *,
